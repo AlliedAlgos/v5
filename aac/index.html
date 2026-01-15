@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Download AAC | Allied Algorithms</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="icon" type="image/png" href="../images/logo.png">
+
+    <script>
+        $(function () {
+            $("#navbar").load("../layout/navbar.html", () => {
+                window.dispatchEvent(new Event('scroll'));
+            });
+            $("#footer").load("../layout/footer.html");
+        });
+
+        function scrollToDownload() {
+            document.getElementById('download-section').scrollIntoView({ behavior: 'smooth' });
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #050505;
+            color: #ffffff;
+            overflow-x: hidden;
+            font-family: system-ui, -apple-system, sans-serif;
+            scroll-behavior: smooth;
+        }
+
+        .hero-gradient {
+            background: radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.08) 0%, transparent 70%);
+        }
+
+        .glass-panel {
+            background: rgba(15, 15, 20, 0.4);
+            backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        /* Consistent scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #050505; }
+        ::-webkit-scrollbar-thumb { background: #18181b; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #3b82f6; }
+
+        .main-content { padding-top: 140px; }
+        
+        .glow-button {
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.2);
+        }
+    </style>
+</head>
+
+<body class="min-h-screen flex flex-col">
+    <div id="navbar"></div>
+
+    <main class="main-content flex-grow container mx-auto px-6">
+        
+        <section class="mb-12 relative py-20 hero-gradient rounded-[3rem] text-center">
+            <div class="max-w-4xl mx-auto px-4">
+                <span class="text-blue-500 font-bold tracking-[0.4em] text-[10px] uppercase mb-6 block">Software Engineering</span>
+                <h1 class="text-6xl md:text-9xl font-bold tracking-tighter italic text-white leading-none uppercase mb-8">
+                    AUTO <br> <span class="text-blue-500">CORRECTION.</span>
+                </h1>
+                <p class="text-zinc-500 text-lg md:text-xl mt-8 max-w-2xl mx-auto font-light leading-relaxed mb-10">
+                    Improve accuracy, consistency, and mission efficiency for your FLL team with the AAC framework.
+                </p>
+                
+                <button onclick="scrollToDownload()" class="glow-button px-10 py-5 bg-white text-black font-black text-xs uppercase tracking-[0.3em] rounded-full hover:bg-blue-500 hover:text-white transition-all active:scale-95">
+                    Download <i class="fa-solid fa-arrow-down ml-2"></i>
+                </button>
+            </div>
+        </section>
+
+        <div class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6 mb-24">
+            <div class="glass-panel p-10 rounded-[2.5rem] border-l-2 border-l-blue-500/50 group hover:bg-blue-500/[0.02] transition-all">
+                <div class="w-14 h-14 bg-blue-600/10 rounded-2xl flex items-center justify-center mb-6 group-hover:rotate-12 transition-transform">
+                    <i class="fa-solid fa-crosshairs text-blue-500 text-2xl"></i>
+                </div>
+                <h3 class="text-2xl font-bold italic uppercase tracking-tight mb-3 text-white">Millimeter Precision</h3>
+                <p class="text-zinc-400 text-sm leading-relaxed">
+                    Advanced PID algorithms and gyro-integration ensure your robot stays on track even with wheel slip or battery fluctuations.
+                </p>
+            </div>
+
+            <div class="glass-panel p-10 rounded-[2.5rem] border-l-2 border-l-cyan-500/50 group hover:bg-cyan-500/[0.02] transition-all">
+                <div class="w-14 h-14 bg-cyan-600/10 rounded-2xl flex items-center justify-center mb-6 group-hover:rotate-12 transition-transform">
+                    <i class="fa-solid fa-arrows-rotate text-cyan-500 text-2xl"></i>
+                </div>
+                <h3 class="text-2xl font-bold italic uppercase tracking-tight mb-3 text-white">Global Consistency</h3>
+                <p class="text-zinc-400 text-sm leading-relaxed">
+                    Standardize your movement blocks across different missions. Write once, execute perfectly every single time on the field.
+                </p>
+            </div>
+        </div>
+
+        <div id="download-section" class="max-w-6xl mx-auto mb-32">
+            <div class="glass-panel p-8 md:p-16 rounded-[4rem] relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-96 h-96 bg-blue-600/5 rounded-full blur-[100px] -mr-48 -mt-48"></div>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-5 gap-16 relative z-10">
+                    
+                    <div class="lg:col-span-3 flex flex-col gap-10">
+                        <div>
+                            <span class="text-blue-500 font-bold tracking-[0.4em] text-[10px] uppercase mb-4 block">Authorization Required</span>
+                            <h2 class="text-4xl md:text-6xl font-black italic tracking-tighter uppercase leading-none">Access <br> System.</h2>
+                        </div>
+
+                        <form id="downloadForm" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="flex flex-col gap-2">
+                                <label class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest ml-1">Team ID</label>
+                                <input type="text" id="teamNumber" placeholder="58590" 
+                                       class="w-full bg-white/5 border border-white/10 rounded-2xl p-5 text-white focus:outline-none focus:border-blue-500 transition-all font-mono text-lg">
+                            </div>
+
+                            <div class="flex flex-col gap-2">
+                                <label class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest ml-1">Contact Email</label>
+                                <input type="email" id="email" placeholder="coach@team.com" 
+                                       class="w-full bg-white/5 border border-white/10 rounded-2xl p-5 text-white focus:outline-none focus:border-blue-500 transition-all text-lg">
+                            </div>
+
+                            <button type="submit" id="downloadBtn" 
+                                    class="md:col-span-2 mt-4 bg-blue-600 hover:bg-blue-500 text-white font-black text-sm uppercase tracking-[0.3em] py-6 rounded-2xl shadow-2xl shadow-blue-600/30 transition-all active:scale-[0.98]">
+                                Download AAC Framework (LLSP3)
+                            </button>
+                        </form>
+                        <p id="status" class="text-center text-[10px] font-bold uppercase tracking-widest min-h-[1rem]"></p>
+                    </div>
+
+                    <div class="lg:col-span-2 flex flex-col gap-8">
+                        <div class="bg-white/5 rounded-[2.5rem] p-8 border border-white/5">
+                            <h3 class="text-xl font-bold italic mb-6 uppercase">Technical Resources</h3>
+                            <div class="flex flex-col gap-4">
+                                <a href="https://alliedalgos.github.io/website/docs" target="_blank"
+                                   class="flex items-center justify-between p-5 bg-black/20 border border-white/5 rounded-2xl hover:border-blue-500 transition-all group">
+                                    <span class="font-bold text-[10px] uppercase tracking-widest">Documentation</span>
+                                    <i class="fa-solid fa-chevron-right text-zinc-600 group-hover:text-blue-500 transition-colors"></i>
+                                </a>
+                                <a href="https://github.com/AlliedAlgos" target="_blank"
+                                   class="flex items-center justify-between p-5 bg-black/20 border border-white/5 rounded-2xl hover:border-white/40 transition-all group">
+                                    <span class="font-bold text-[10px] uppercase tracking-widest">GitHub Repository</span>
+                                    <i class="fa-solid fa-chevron-right text-zinc-600 group-hover:text-white transition-colors"></i>
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="p-8 border border-blue-500/20 bg-blue-500/5 rounded-[2.5rem]">
+                            <div class="flex items-center gap-3 text-blue-400 mb-3">
+                                <i class="fa-solid fa-circle-info text-sm"></i>
+                                <span class="text-[10px] font-bold uppercase tracking-widest">Deployment Note</span>
+                            </div>
+                            <p class="text-zinc-400 text-xs leading-relaxed">
+                                Requires SPIKE Prime v3.0 or higher. Built for competition-grade reliability.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div id="footer"></div>
+
+    <script>
+        const DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1377087321203150941/iK28JWFiXjPouGOpEVnvhExkIqPdp8H7P7HT5oSJHdpPFOgMsOde9s8fD-xSnyl_MNbQ";
+
+        const downloadBtn = document.getElementById("downloadBtn");
+        const status = document.getElementById("status");
+
+        document.getElementById("downloadForm").addEventListener("submit", async (e) => {
+            e.preventDefault();
+
+            const teamNumber = document.getElementById("teamNumber").value.trim();
+            const email = document.getElementById("email").value.trim();
+
+            if (!teamNumber || !email) {
+                status.textContent = "Error: Input Missing";
+                status.className = "text-red-500 text-center text-[10px] font-bold uppercase tracking-widest";
+                return;
+            }
+
+            status.textContent = "Processing Signal...";
+            status.className = "text-blue-400 text-center text-[10px] font-bold uppercase tracking-widest animate-pulse";
+
+            try {
+                await fetch(DISCORD_WEBHOOK_URL, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        embeds: [{
+                            title: "📥 AAC System Accessed",
+                            color: 3447003,
+                            fields: [
+                                { name: "Team ID", value: teamNumber, inline: true },
+                                { name: "Email", value: email, inline: true }
+                            ],
+                            timestamp: new Date().toISOString()
+                        }]
+                    })
+                });
+            } catch (error) {}
+
+            const link = document.createElement("a");
+            link.href = "AutoCorrection.llsp3";
+            link.download = "AutoCorrection.llsp3";
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+
+            status.textContent = "Access Granted. Download Initialized.";
+            status.className = "text-green-500 text-center text-[10px] font-bold uppercase tracking-widest";
+        });
+    </script>
+</body>
+</html>

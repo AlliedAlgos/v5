@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="google-site-verification" content="oR7TSqcvFR2p3NwBfh3XHsn2D3_lKclZzcbnEZlAgvk" />
+    <title>Allied Algorithms | Engineering & Creativity</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    animation: {
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* VISIBLE BLUEPRINT GRID */
+        body { 
+            background-color: #050505;
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+            background-size: 45px 45px;
+        }
+
+        /* INTENSE CURSOR SPOTLIGHT */
+        .spotlight {
+            background: radial-gradient(
+                900px circle at var(--x, 50%) var(--y, 50%), 
+                rgba(99, 102, 241, 0.3) 0%, 
+                rgba(99, 102, 241, 0.08) 25%,
+                transparent 70%
+            );
+        }
+    </style>
+
+    <script>
+        $(function () {
+            $("#navbar").load("../layout/navbar.html");
+            $("#footer").load("../layout/footer.html");
+            $(window).on('mousemove', (e) => {
+                document.documentElement.style.setProperty('--x', e.clientX + 'px');
+                document.documentElement.style.setProperty('--y', e.clientY + 'px');
+            });
+        });
+    </script>
+</head>
+
+<body class="text-slate-200 antialiased selection:bg-indigo-500/40">
+    <div class="spotlight fixed inset-0 pointer-events-none z-0"></div>
+
+    <div id="navbar" class="w-full sticky top-0 z-50"></div>
+
+    <main class="relative z-10 max-w-7xl mx-auto px-6 py-24 lg:py-44">
+        
+        <header class="mb-32">
+            <h1 class="text-6xl md:text-9xl font-black italic uppercase tracking-tighter leading-none mb-8 bg-gradient-to-b from-white to-white/20 bg-clip-text text-transparent">
+                Allied <br/> <span class="text-indigo-500 drop-shadow-[0_0_40px_rgba(99,102,241,0.5)]">Algorithms</span>
+            </h1>
+            <p class="text-zinc-500 text-xs md:text-sm font-black uppercase tracking-[0.8em] max-w-3xl leading-relaxed">
+                Where engineering meets creativity
+            </p>
+        </header>
+
+        <section class="grid grid-cols-2 lg:grid-cols-4 gap-px bg-white/10 border border-white/10 rounded-[3rem] overflow-hidden mb-24 shadow-2xl backdrop-blur-md">
+            <div class="bg-black/60 p-12 text-center hover:bg-indigo-500/5 transition-colors group">
+                <p id="live-designs" class="text-5xl font-black italic text-white group-hover:text-indigo-400 animate-pulse-slow">0</p>
+                <p class="text-[10px] font-bold uppercase tracking-[0.4em] text-zinc-600 mt-3">Robot-Designs</p>
+            </div>
+            <div class="bg-black/60 p-12 text-center hover:bg-indigo-500/5 transition-colors group border-l border-white/10">
+                <p id="live-outreach" class="text-5xl font-black italic text-white group-hover:text-indigo-400 animate-pulse-slow">0</p>
+                <p class="text-[10px] font-bold uppercase tracking-[0.4em] text-zinc-600 mt-3">Impact</p>
+            </div>
+            <div class="bg-black/60 p-12 text-center hover:bg-indigo-500/5 transition-colors group border-l border-white/10">
+                <p id="live-sponsors" class="text-5xl font-black italic text-white group-hover:text-indigo-400 animate-pulse-slow">0</p>
+                <p class="text-[10px] font-bold uppercase tracking-[0.4em] text-zinc-600 mt-3">Partners</p>
+            </div>
+            <div class="bg-black/60 p-12 text-center hover:bg-indigo-500/5 transition-colors group border-l border-white/10">
+                <p id="live-seasons" class="text-5xl font-black italic text-white group-hover:text-indigo-400 animate-pulse-slow">0</p>
+                <p class="text-[10px] font-bold uppercase tracking-[0.4em] text-zinc-600 mt-3">Seasons with FLL</p>
+            </div>
+        </section>
+
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-8">
+            
+            <div class="md:col-span-8 p-12 md:p-20 rounded-[4rem] bg-zinc-900/40 border border-white/10 backdrop-blur-3xl hover:border-indigo-500/40 transition-all group">
+                <h2 class="text-xs font-black uppercase tracking-[0.6em] text-indigo-500 mb-10">Operational Core</h2>
+                <p class="text-3xl md:text-5xl font-medium text-zinc-200 leading-[1.15]">
+                    Technical precision meets <span class="text-white italic font-black group-hover:text-indigo-400 transition-colors">creative strategy</span>. Our collective is built to redefine what's possible in robotics.
+                </p>
+            </div>
+
+            <div class="md:col-span-4 p-12 rounded-[4rem] bg-indigo-600/5 border border-indigo-500/20 flex flex-col justify-between items-center text-center">
+                <h2 class="text-xs font-black uppercase tracking-[0.6em] text-indigo-400">The Challenge</h2>
+                <p class="text-sm text-zinc-400 leading-relaxed italic px-4">"Hands-on robotics that teaches students how to engineer the world around them."</p>
+                <div class="text-indigo-500/10 text-7xl mb-4"><i class="fa-solid fa-microchip"></i></div>
+            </div>
+
+            <div class="md:col-span-6 p-14 rounded-[4rem] bg-zinc-900/60 border border-white/10 relative overflow-hidden group">
+                <div class="relative z-10">
+                    <h3 class="text-3xl font-black italic text-white mb-6 uppercase tracking-tighter">Open Source Philosophy</h3>
+                    <p class="text-zinc-400 leading-relaxed mb-10">
+                        We believe that giving back to the STEM community is an essential part of engineering. We share our custom tools, CAD models, and strategy documentation to empower teams globally.
+                    </p>
+                    <div class="flex gap-4">
+                        <span class="text-[10px] font-black px-5 py-2.5 bg-indigo-500/10 border border-indigo-500/20 rounded-full text-indigo-400 tracking-[0.2em]">PUBLIC CAD</span>
+                        <span class="text-[10px] font-black px-5 py-2.5 bg-white/5 border border-white/10 rounded-full text-zinc-500 tracking-[0.2em] uppercase">Architecture</span>
+                    </div>
+                </div>
+                <div class="absolute -bottom-10 -right-10 text-indigo-500/5 text-[12rem] group-hover:scale-110 transition-transform"><i class="fa-solid fa-code-merge"></i></div>
+            </div>
+
+            <div class="md:col-span-6 p-14 rounded-[4rem] bg-gradient-to-br from-indigo-600 via-indigo-700 to-indigo-950 border border-indigo-400/20 flex flex-col justify-center items-center text-center shadow-2xl">
+                <p class="text-2xl md:text-3xl font-black italic text-white leading-tight uppercase tracking-tighter">
+                    Building robots is the medium. <br/> Building community is the goal.
+                </p>
+            </div>
+        </div>
+    </main>
+
+    <div id="footer" class="w-full relative z-10"></div>
+
+    <script>
+        const SUPABASE_URL = "https://eyxhddkoqotedgucpfbz.supabase.co";
+        const SUPABASE_KEY = "sb_publishable_h4nlL7bfvrg-amPOoqyhTw_CJjsVfJc"; 
+        const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        async function updateStats() {
+            try {
+                // Fetch Design Count instead of Members
+                const { count: designs } = await sb.from('robot_designs').select('*', { count: 'exact', head: true });
+                const { count: sponsors } = await sb.from('sponsors').select('*', { count: 'exact', head: true });
+                const { count: seasons } = await sb.from('seasons').select('*', { count: 'exact', head: true });
+                const { data: outreach } = await sb.from('outreach').select('count');
+                
+                const totalO = outreach?.reduce((acc, curr) => acc + (Number(curr.count) || 0), 0) || 0;
+
+                $('#live-designs').text(designs || 0);
+                $('#live-sponsors').text(sponsors || 0);
+                $('#live-seasons').text(seasons || 0);
+                $('#live-outreach').text(totalO.toLocaleString() + "+");
+            } catch (e) { console.log("System Sync paused."); }
+        }
+        updateStats();
+    </script>
+</body>
+</html>

@@ -1,0 +1,60 @@
+/* Custom CSS for base styles and text elements */
+body {
+    min-height: 100vh;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center; /* Center content vertically as well */
+    
+
+    /* Background with circles */
+    background-color:#000;
+
+    font-family: 'Inter', sans-serif;
+    color: white; /* Set default text color to white */
+    position: relative;
+    padding-top: 0;
+    overflow-x: hidden;
+}
+/* Hide the other sections to replicate the provided image's look */
+.team-action-section, .fll-section, .footer {
+    display: none;
+}
+img {
+    padding-bottom: 10px;
+}
+/* Responsive Adjustments */
+@media (max-width: 1024px) {
+    .main-content h1 {
+        font-size: 3.5rem;
+    }
+    .main-content p {
+        font-size: 1.5rem;
+    }
+    .main-content h1::before {
+        left: -1rem;
+        font-size: 5rem;
+    }
+    .main-content h1::after {
+        right: -1rem;
+        font-size: 5rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .main-content h1 {
+        font-size: 2.5rem;
+    }
+    .main-content p {
+        font-size: 1.2rem;
+    }
+    .main-content h1::before {
+        left: -0.5rem;
+        font-size: 4rem;
+    }
+    .main-content h1::after {
+        right: -0.5rem;
+        font-size: 4rem;
+    }
+}

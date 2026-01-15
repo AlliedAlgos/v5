@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>AlliedWork – Mission Control</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.41.0/min/vs/loader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root {
+    --bg-dark: #111827;
+    --bg-light: #ffffff;
+    --text-dark: #f9fafb;
+    --text-light: #111827;
+    --border: rgba(255,255,255,0.08);
+    --accent-teal: #14b8a6;
+  }
+
+  body {
+    margin:0;
+    font-family: 'Inter', sans-serif;
+    background-color: var(--bg-dark);
+    color: var(--text-dark);
+    overflow: hidden;
+  }
+
+  .glass-sidebar {
+    background: rgba(15,15,15,0.8);
+    backdrop-filter: blur(20px);
+    border-right: 1px solid var(--border);
+    width: 64px;
+    transition: width 0.3s;
+    z-index:50;
+  }
+  .glass-sidebar:hover { width: 200px; }
+
+  .sidebar-label { opacity:0; display:none; margin-left:15px; }
+  .glass-sidebar:hover .sidebar-label { opacity:1; display:block; }
+
+  .pill-tab {
+    padding:8px 20px;
+    border-radius:99px;
+    font-size:13px;
+    color:#52525b;
+    cursor:pointer;
+    transition:0.2s;
+  }
+  .pill-tab.active {
+    background: rgba(255,255,255,0.05);
+    color:white;
+    border: 1px solid var(--border);
+  }
+
+  #editor-container { position:absolute; inset:0; }
+
+  .modal-backdrop {
+    background: rgba(0,0,0,0.4);
+    backdrop-filter: blur(5px);
+  }
+</style>
+</head>
+<body class="h-screen w-screen flex">
+
+<!-- SIDEBAR -->
+<aside class="glass-sidebar relative flex flex-col h-full overflow-hidden">
+
+  <!-- LOGO -->
+  <div class="h-16 flex items-center px-5 font-bold text-xl border-b border-white/5">AW</div>
+
+  <!-- TOP NAV -->
+  <nav class="flex flex-col py-6 space-y-2 flex-shrink-0">
+    <button class="flex items-center w-full px-5 py-3 hover:text-white text-zinc-500"
+            onclick="location.reload()">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+      </svg>
+      <span class="sidebar-label">Editor</span>
+    </button>
+
+    <button class="flex items-center w-full px-5 py-3 hover:text-white text-zinc-500"
+            onclick="window.open('robot-map.html','Map','width=1200,height=800')">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+      </svg>
+      <span class="sidebar-label">Popout Map</span>
+    </button>
+
+    <button onclick="openThemeModal()"
+            class="flex items-center w-full px-5 py-3 hover:text-white text-zinc-500">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-7.364l-.707.707M6.343 17.657l-.707.707m12.728 0l-.707-.707M6.343 6.343l-.707-.707"/>
+      </svg>
+      <span class="sidebar-label">Theme</span>
+    </button>
+
+    <button onclick="openDocsModal()"
+            class="flex items-center w-full px-5 py-3 hover:text-white text-zinc-500">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path d="M4 6h16M4 12h16M4 18h16"/>
+      </svg>
+      <span class="sidebar-label">Docs</span>
+    </button>
+
+    <button class="flex items-center w-full px-5 py-3 hover:text-white text-zinc-500">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="3"/>
+        <path d="M19.4 15a7 7 0 10-2.3 2.3l3.3 3.3 1.4-1.4-3.3-3.3z"/>
+      </svg>
+      <span class="sidebar-label">Contributors</span>
+    </button>
+
+  </nav>
+
+  <!-- USER + LOGOUT -->
+  <div class="absolute bottom-0 left-0 w-full px-5 pb-4 space-y-4">
+    <div id="user-box" class="flex items-center space-x-3 cursor-default">
+      <img id="user-pfp" class="w-10 h-10 rounded-full object-cover border border-white/10"
+           src="default_pfp.png">
+      <span id="user-name" class="sidebar-label text-sm text-zinc-400"></span>
+    </div>
+
+    <button id="logoutBtn"
+            class="flex items-center w-full px-3 py-3 text-red-500 hover:text-red-400 rounded-xl bg-white/0 hover:bg-white/5 transition">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+      </svg>
+      <span class="sidebar-label ml-3">Logout</span>
+    </button>
+  </div>
+
+</aside>
+
+<!-- MAIN -->
+<main class="relative flex-1 flex flex-col min-w-0">
+
+  <!-- TOP-RIGHT CREDIT -->
+  <div class="absolute top-4 right-4 text-sm text-zinc-400 bg-white/5 px-3 py-1 rounded-xl border border-white/10 backdrop-blur-md">
+    Made by FLL team <span class="font-semibold">Allied Algorithms #58590</span>
+  </div>
+
+  <!-- TOP TABS -->
+  <header class="h-14 flex items-center px-6 gap-2 border-b border-white/5">
+    <div id="tab-main" class="pill-tab active" onclick="switchTab('main')">main.aw</div>
+    <div id="tab-gen" class="pill-tab" onclick="switchTab('gen')">generated.py</div>
+  </header>
+
+  <!-- EDITOR -->
+  <div class="flex-1 relative"><div id="editor-container"></div></div>
+
+  <!-- TERMINAL + MAP -->
+  <div class="h-[40%] flex border-t border-white/5 bg-zinc-950/50">
+    <div class="w-[35%] p-4 font-mono text-xs flex flex-col">
+      <div id="term-out" class="flex-1 overflow-y-auto space-y-1 text-zinc-500"></div>
+      <div class="flex items-center gap-2 mt-2 pt-2 border-t border-white/5">
+        <span class="text-teal-500">></span>
+        <input id="term-in" type="text" class="bg-transparent outline-none text-zinc-200 w-full"
+               placeholder="Command...">
+      </div>
+    </div>
+    <div class="w-[65%] border-l border-white/5 p-2 bg-black">
+      <iframe id="map-frame" src="robot-map.html"
+              class="w-full h-full rounded-xl border border-white/5"></iframe>
+    </div>
+  </div>
+</main>
+
+<!-- THEME MODAL -->
+<div id="themeModal" class="fixed inset-0 modal-backdrop hidden items-center justify-center z-50">
+  <div class="bg-white/90 dark:bg-zinc-900/90 border border-white/10 rounded-2xl p-6 w-72">
+      <h2 class="text-xl font-semibold mb-4 text-zinc-900 dark:text-white">Theme</h2>
+      <label class="flex items-center cursor-pointer justify-between">
+        <span class="text-sm text-zinc-700 dark:text-zinc-300">Light</span>
+        <input type="checkbox" id="theme-toggle" class="sr-only" onchange="toggleTheme()">
+        <div class="w-14 h-7 bg-zinc-700 dark:bg-zinc-200 rounded-full shadow-inner relative">
+          <div id="toggle-ball" class="absolute left-1 top-1 w-5 h-5 bg-white rounded-full transition"></div>
+        </div>
+        <span class="text-sm text-zinc-700 dark:text-zinc-300 ml-2">Dark</span>
+      </label>
+  </div>
+</div>
+
+<!-- DOCS MODAL -->
+<div id="docsModal" class="fixed inset-0 modal-backdrop hidden items-center justify-center z-50">
+  <div class="bg-white/90 dark:bg-zinc-900/90 border border-white/10 rounded-2xl p-6 w-72 text-center">
+    <h2 class="text-xl font-semibold mb-4 text-zinc-900 dark:text-white">Documentation</h2>
+    <a href="https://yourdocslink.com" target="_blank"
+       class="block px-4 py-2 rounded-lg bg-teal-500 text-white font-medium hover:bg-teal-600 transition">
+       Go to Documentation →
+    </a>
+  </div>
+</div>
+
+<script>
+const S_URL = "https://bqagmevmzpuvgiigyime.supabase.co";
+const S_KEY = "sb_publishable_rcXEO06dge8l_iJI_AUbSA_vD321UNP";
+const supabaseClient = supabase.createClient(S_URL, S_KEY);
+
+const bc = new BroadcastChannel('allied_sync');
+let editor, motorL="C", motorR="D", currentFile="main", autoCode=false, saveTimer;
+const files = { main: "speed(5)\ndrive(100)", gen: "" };
+
+// Terminal log function
+function log(t,c="text-zinc-500"){ const d=document.createElement('div'); d.className=c; d.innerText=`> ${t}`; const o=document.getElementById('term-out'); o.appendChild(d); o.scrollTop=o.scrollHeight; }
+
+// Monaco editor
+require.config({ paths: { 'vs': 'https://cdn.jsdelivr.net/npm/monaco-editor@0.41.0/min/vs' }});
+require(['vs/editor/editor.main'], () => {
+  editor = monaco.editor.create(document.getElementById('editor-container'), {
+    value: files.main,
+    language: "python",
+    theme: "vs-dark",
+    automaticLayout:true,
+    minimap:{enabled:false}
+  });
+  editor.onDidChangeModelContent(()=>{ if(currentFile==='main'){clearTimeout(saveTimer); saveTimer=setTimeout(save,2000);} });
+});
+
+// Save to Supabase
+async function save(){
+  const { data:{user} } = await supabaseClient.auth.getUser();
+  if(!user) return;
+  await supabaseClient.from('user_scripts').upsert({id:user.id, aw_content:editor.getValue(), updated_at:new Date()});
+}
+
+// Terminal input
+document.getElementById('term-in').addEventListener('keydown',(e)=>{
+  if(e.key==='Enter'){
+    const val=e.target.value.trim(); e.target.value="";
+    if(val.toLowerCase()==='record'){ autoCode=!autoCode; log(`Recording: ${autoCode?'ON':'OFF'}`,autoCode?'text-teal-400':'text-red-400'); return;}
+    if(val.includes(',')){
+      if(/[A-F],[A-F]/.test(val.toUpperCase())){
+        const p=val.toUpperCase().split(',');
+        motorL=p[0]; motorR=p[1]; log(`Motors: ${motorL}, ${motorR}`, "text-teal-500");
+      } else { const c=val.split(','); bc.postMessage({type:'SET_POS',x:parseInt(c[0]),y:parseInt(c[1])}); }
+    }
+  }
+});
+
+// BroadcastChannel
+bc.onmessage=(e)=>{
+  if(e.data.type==='RECORD_MOVE' && autoCode){
+    const turn=`turn(${Math.round(e.data.angle)})`, drive=`drive(${Math.round(e.data.dist)})`;
+    editor.setValue(`${editor.getValue()}\n${turn}\n${drive}`);
+  }
+  if(e.data.type==='REQUEST_RUN') bc.postMessage({ type:'RUN_CODE', command: editor.getValue() });
+};
+
+// Tab switching
+function switchTab(t){
+  if(t===currentFile) return;
+  if(currentFile==='main') files.main=editor.getValue();
+  if(t==='gen'){
+    const body=files.main.split('\n').map(l=>(l.trim() && !l.trim().startsWith('#'))?`    await ${l}`:`    ${l}`).join('\n');
+    files.gen=
+`import runloop,math,motor_pair,motor,time
+from hub import port
+r = 22
+total=100
+
+def speed(x):
+    global velocity
+    velocity = x*110
+
+async def drive(desired):
+    circumference=2*r*math.pi
+    rotations=desired/circumference
+    degrees=int(rotations*360)
+    await motor_pair.move_for_degrees(motor_pair.PAIR_1, degrees, 0, velocity=velocity)
+
+async def turn(desired):
+    distance=int((desired/total)*360)
+    await motor_pair.move_for_degrees(motor_pair.PAIR_1, distance, 100)
+
+def speed_motor(x):
+    global velocity_motor
+    velocity_motor = x*110
+
+async def turn_motor(port,desired):
+    angle = desired/2
+    motor.run_for_degrees(port.port, angle, velocity_motor)
+
+def wait(mili):
+    time.sleep_ms(mili)
+
+async def main():
+    motor_pair.pair(motor_pair.PAIR_1, port.${motorL}, port.${motorR})
+${body}
+runloop.run(main())`;
+    editor.setValue(files.gen); editor.updateOptions({readOnly:true});
+  } else { editor.setValue(files.main); editor.updateOptions({readOnly:false}); }
+  currentFile=t;
+  document.getElementById('tab-main').className=`pill-tab ${t==='main'?'active':''}`;
+  document.getElementById('tab-gen').className=`pill-tab ${t==='gen'?'active':''}`;
+}
+
+// Init
+async function init(){
+  const { data:{user} } = await supabaseClient.auth.getUser();
+  if(!user){ window.location.href="login.html"; return; }
+
+  const {data}=await supabaseClient.from('user_scripts').select('aw_content').eq('id',user.id).single();
+  if(data){ files.main=data.aw_content; editor.setValue(data.aw_content); }
+
+  const pfp = user.user_metadata?.avatar_url || "https://api.dicebear.com/6.x/thumbs/svg?seed="+user.email;
+  document.getElementById("user-pfp").src = pfp;
+  document.getElementById("user-name").innerText = user.email.split("@")[0];
+
+  log(`Welcome ${user.email.split('@')[0]}. Type 'record' to start path recording.`, "text-teal-400");
+}
+document.getElementById('logoutBtn').onclick=async()=>{await supabaseClient.auth.signOut(); window.location.href="login.html";}
+init();
+
+// Theme modal
+const themeModal=document.getElementById("themeModal");
+function openThemeModal(){ themeModal.classList.remove("hidden"); }
+
+// Docs modal
+const docsModal=document.getElementById("docsModal");
+function openDocsModal(){ docsModal.classList.remove("hidden"); }
+
+// Close modals when clicking outside
+window.addEventListener("click",(e)=>{
+  if(e.target===themeModal) themeModal.classList.add("hidden");
+  if(e.target===docsModal) docsModal.classList.add("hidden");
+});
+
+// Theme toggle
+let darkMode=true;
+function toggleTheme(){
+  darkMode=document.getElementById("theme-toggle").checked;
+  if(darkMode){
+    document.body.style.backgroundColor="var(--bg-dark)";
+    document.body.style.color="var(--text-dark)";
+    document.querySelector('.glass-sidebar').style.background="rgba(15,15,15,0.8)";
+    monaco.editor.setTheme("vs-dark");
+    document.getElementById("toggle-ball").style.transform="translateX(28px)";
+  } else {
+    document.body.style.backgroundColor="var(--bg-light)";
+    document.body.style.color="var(--text-light)";
+    document.querySelector('.glass-sidebar').style.background="rgba(255,255,255,0.8)";
+    monaco.editor.setTheme("vs");
+    document.getElementById("toggle-ball").style.transform="translateX(0)";
+  }
+}
+</script>
+</body>
+</html>

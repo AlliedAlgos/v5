@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Documentation | Allied Algorithms</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+
+        body { 
+            background-color: #050505;
+            font-family: 'Inter', sans-serif;
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+            background-size: 45px 45px;
+        }
+
+        /* BRIGHT CURSOR SPOTLIGHT */
+        .spotlight {
+            background: radial-gradient(
+                800px circle at var(--x, 50%) var(--y, 50%), 
+                rgba(99, 102, 241, 0.25) 0%, 
+                rgba(99, 102, 241, 0.05) 30%,
+                transparent 70%
+            );
+        }
+
+        /* Smooth Scrollbar */
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(99, 102, 241, 0.4); border-radius: 10px; }
+
+        .glass-card {
+            background: rgba(10, 10, 15, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(20px);
+        }
+    </style>
+</head>
+
+<body class="text-slate-300 antialiased selection:bg-indigo-500/40 overflow-x-hidden">
+    <div class="spotlight fixed inset-0 pointer-events-none z-0"></div>
+
+    <div id="navbar" class="w-full sticky top-0 z-50"></div>
+
+    <div class="relative z-10 max-w-8xl mx-auto flex flex-col lg:flex-row min-h-screen">
+        
+        <aside class="w-full lg:w-80 p-8 lg:p-12 lg:border-r border-white/10 bg-black/40 backdrop-blur-3xl">
+            <div class="lg:sticky lg:top-32">
+                
+                <div class="flex items-center gap-3 mb-10">
+                    <div class="w-2 h-2 rounded-full bg-indigo-500 animate-pulse"></div>
+                    <h2 class="text-[10px] font-black uppercase tracking-[0.5em] text-indigo-500">Technical Docs</h2>
+                </div>
+
+                <div class="relative mb-12 group">
+                    <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-zinc-600 group-focus-within:text-indigo-400 transition-colors"></i>
+                    <input 
+                        type="text" 
+                        id="doc-search" 
+                        placeholder="Search system..." 
+                        class="w-full bg-white/5 border border-white/10 rounded-2xl py-3 pl-12 pr-4 text-xs font-bold tracking-widest uppercase focus:outline-none focus:border-indigo-500/50 focus:bg-white/10 transition-all text-white placeholder:text-zinc-700"
+                    />
+                </div>
+                
+                <nav id="doc-nav" class="space-y-4">
+                    <div class="animate-pulse space-y-4">
+                        <div class="h-2 bg-white/5 rounded w-full"></div>
+                        <div class="h-2 bg-white/5 rounded w-3/4"></div>
+                    </div>
+                </nav>
+            </div>
+        </aside>
+
+        <main id="doc-container" class="flex-1 p-6 md:p-16 lg:p-24 max-w-5xl space-y-24">
+            <div id="loading-state" class="flex flex-col items-center justify-center py-40">
+                <i class="fa-solid fa-circle-notch animate-spin text-4xl text-indigo-500 mb-6"></i>
+                <p class="text-[10px] font-black uppercase tracking-[0.4em] text-zinc-500">Connecting to allied_core...</p>
+            </div>
+        </main>
+    </div>
+
+    <div id="footer" class="relative z-10"></div>
+
+    <script>
+        // SUPABASE CONFIG
+        const SUPABASE_URL = "https://eyxhddkoqotedgucpfbz.supabase.co";
+        const SUPABASE_KEY = "sb_publishable_h4nlL7bfvrg-amPOoqyhTw_CJjsVfJc"; 
+        const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        // FETCH DATA
+        async function loadDocumentation() {
+            try {
+                const { data: docs, error } = await sb
+                    .from('documentation')
+                    .select('*')
+                    .order('created_at', { ascending: true });
+
+                if (error) throw error;
+
+                const nav = $('#doc-nav').empty();
+                const container = $('#doc-container').empty();
+
+                docs.forEach(doc => {
+                    // Inject Sidebar Link
+                    nav.append(`
+                        <a href="#${doc.section_id}" class="doc-link block text-[11px] font-black text-zinc-500 hover:text-white transition-all uppercase tracking-widest pl-4 border-l-2 border-transparent hover:border-indigo-500">
+                            ${doc.title}
+                        </a>
+                    `);
+
+                    // Inject Main Content
+                    container.append(`
+                        <section id="${doc.section_id}" class="scroll-mt-40 group">
+                            <div class="mb-8">
+                                <div class="flex items-center gap-3 mb-2">
+                                    <span class="h-[1px] w-8 bg-indigo-500"></span>
+                                    <span class="text-[9px] font-black text-indigo-500 uppercase tracking-[0.4em]">
+                                        ${doc.category || 'Standard Module'}
+                                    </span>
+                                </div>
+                                <h2 class="text-4xl md:text-6xl font-black italic text-white uppercase tracking-tighter transition-all">
+                                    ${doc.title}
+                                </h2>
+                            </div>
+                            
+                            <div class="glass-card p-8 md:p-14 rounded-[3.5rem] hover:border-indigo-500/30 transition-all">
+                                <article class="prose prose-invert prose-indigo max-w-none text-zinc-400 text-lg leading-relaxed">
+                                    ${marked.parse(doc.content)}
+                                </article>
+                            </div>
+                        </section>
+                    `);
+                });
+            } catch (err) {
+                console.error(err);
+                $('#doc-container').html('<div class="text-red-500 font-mono text-xs uppercase p-10 border border-red-500/20 bg-red-500/5 rounded-3xl">Link Error: Documentation could not be synced.</div>');
+            }
+        }
+
+        // INITIALIZE
+        $(function() {
+            // Load Layouts
+            $("#navbar").load("../layout/navbar.html");
+            $("#footer").load("../layout/footer.html");
+
+            // Fetch Docs
+            loadDocumentation();
+
+            // Interactive Spotlight
+            $(window).on('mousemove', (e) => {
+                document.documentElement.style.setProperty('--x', e.clientX + 'px');
+                document.documentElement.style.setProperty('--y', e.clientY + 'px');
+            });
+
+            // COMMAND SEARCH LOGIC
+            $('#doc-search').on('input', function() {
+                const query = $(this).val().toLowerCase();
+                
+                $('#doc-container section').each(function() {
+                    const text = $(this).text().toLowerCase();
+                    const sectionId = $(this).attr('id');
+                    
+                    if (text.includes(query)) {
+                        $(this).stop().fadeIn(400);
+                        $(`a[href="#${sectionId}"]`).show();
+                    } else {
+                        $(this).stop().fadeOut(200);
+                        $(`a[href="#${sectionId}"]`).hide();
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

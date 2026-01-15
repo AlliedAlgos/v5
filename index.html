@@ -1,1 +1,59 @@
-index.html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alliedalgos</title>
+ 
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      body {
+        min-height: 100vh;
+        font-family: 'Inter', sans-serif;
+      }
+      /* Optional: Animation for the spinner */
+      @keyframes spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+      }
+      .animate-spin {
+          animation: spin 1s linear infinite;
+      }
+    </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center p-4">
+
+    <script>
+        window.location.href = "./home/";
+    </script>
+    
+    <!-- 
+      This is the fallback content, shown only if the JavaScript redirect is blocked 
+      or takes a moment to execute.
+    -->
+    <div class="max-w-md w-full bg-white shadow-xl rounded-xl p-8 text-center border-t-4 border-indigo-500">
+        <svg class="mx-auto h-12 w-12 text-indigo-500 animate-spin" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.995 8.995 0 0012 3a9 9 0 00-7.794 13.923L4 16h-.001M20 20v-5h-.581m-15.356-2A8.995 8.995 0 0012 21a9 9 0 007.794-13.923L20 8h.001" />
+        </svg>
+        <h1 class="text-3xl font-extrabold text-gray-800 mt-4 mb-2">
+            Redirecting Instantly...
+        </h1>
+        <p class="text-gray-600 mb-6">
+            You should be instantly redirected to 
+            <span class="font-semibold text-indigo-600">Alliedalgos.github.io/website</span>.
+        </p>
+
+        <!-- Fallback link in case the automatic redirect fails -->
+        <p class="text-sm text-gray-500">
+            If the page does not load right away, please click the link below:
+        </p>
+        <a 
+            href="./home/" 
+            class="mt-4 inline-block bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-2 px-4 rounded-lg transition duration-300 transform hover:scale-105 shadow-md"
+        >
+            Go to Destination Page
+        </a>
+    </div>
+
+</body>
+</html>

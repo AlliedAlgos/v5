@@ -1,0 +1,124 @@
+<div id="navWrapper" class="fixed top-0 left-0 right-0 z-[9999] flex justify-center transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)]">
+    <div id="navContainer" class="w-full mx-auto px-6 bg-zinc-900/60 backdrop-blur-2xl border-b border-white/5 shadow-lg shadow-black/20 transition-all duration-500">
+        <div class="flex justify-between items-center h-16">
+            
+            <a href="../home/" id="brandLogo" class="flex items-center gap-3 hover:opacity-80 transition-all z-[10001]">
+                <img class="w-8 h-8 sm:w-10 sm:h-10" src="../images/Allied-Algorithms_logo.svg" alt="Logo">
+                <span id="brandName" class="text-xl sm:text-2xl font-bold tracking-tighter italic text-white transition-all duration-500">
+                    Allied Algorithms
+                </span>
+            </a>
+            
+            <button id="mobileMenuBtn" class="md:hidden p-2 text-white z-[10001] outline-none">
+                <div id="hamburgerIcon" class="w-6 h-5 relative flex flex-col justify-between">
+                    <span class="w-full h-0.5 bg-white transition-all duration-300 origin-left"></span>
+                    <span class="w-full h-0.5 bg-white transition-all duration-300"></span>
+                    <span class="w-full h-0.5 bg-white transition-all duration-300 origin-left"></span>
+                </div>
+            </button>
+
+            <ul class="hidden md:flex gap-8 lg:gap-10 items-center">
+                <li><a href="../about-us/" class="text-zinc-500 hover:text-blue-400 text-sm font-medium transition-colors">About</a></li>
+                <li><a href="../seasons/" class="text-zinc-500 hover:text-blue-400 text-sm font-medium transition-colors">Seasons</a></li>
+
+                <li class="relative group py-4">
+                    <button class="text-zinc-500 group-hover:text-white text-sm font-medium transition-colors flex items-center gap-1 outline-none">
+                        Projects <i class="fa-solid fa-chevron-down text-[10px] transition-transform group-hover:rotate-180"></i>
+                    </button>
+                    <div id="projectDropdown" class="fixed top-[64px] left-1/2 -translate-x-1/2 w-[80%] opacity-0 invisible translate-y-4 group-hover:opacity-100 group-hover:visible group-hover:translate-y-0 transition-all duration-500 ease-out z-[10000] pointer-events-none group-hover:pointer-events-auto">
+                        <div class="pt-4"> 
+                            <div class="bg-zinc-900/95 backdrop-blur-3xl rounded-[2.5rem] shadow-2xl border border-white/10 p-8">
+                                <div class="grid grid-cols-3 gap-8 text-left">
+                                    <a href="../robot/" class="p-4 rounded-2xl hover:bg-white/5 flex gap-4">
+                                        <div class="text-blue-500 text-xl"><i class="fa-solid fa-robot"></i></div>
+                                        <div><div class="text-white font-bold text-sm">Robot</div><p class="text-[10px] text-zinc-500">CAD Designs</p></div>
+                                    </a>
+                                    <a href="../aac/" class="p-4 rounded-2xl hover:bg-white/5 flex gap-4">
+                                        <div class="text-green-500 text-xl"><i class="fa-solid fa-code"></i></div>
+                                        <div><div class="text-white font-bold text-sm">AAC</div><p class="text-[10px] text-zinc-500">PID Blocks</p></div>
+                                    </a>
+                                    <a href="../docs/" class="p-4 rounded-2xl hover:bg-white/5 flex gap-4 border border-white/5 bg-white/5">
+                                        <div class="text-indigo-400 text-xl"><i class="fa-solid fa-book"></i></div>
+                                        <div><div class="text-white font-bold text-sm">Docs</div><p class="text-[10px] text-zinc-500">API Guides</p></div>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+
+                <li><a href="../contact-us/" class="text-zinc-500 hover:text-blue-400 text-sm font-medium transition-colors">Contact</a></li>
+                <li><a href="https://robotics-catalyst.org/donate/allied-algorithms" class="px-6 py-2 bg-blue-600 text-white text-[10px] uppercase font-black rounded-full hover:bg-blue-500 transition-all">Donate</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <div id="mobileMenu" class="fixed inset-0 bg-black/95 backdrop-blur-2xl z-[10000] flex flex-col items-center justify-center gap-8 opacity-0 pointer-events-none transition-all duration-500 md:hidden">
+        <a href="../about-us/" class="text-2xl font-black italic uppercase text-white hover:text-blue-500">About</a>
+        <a href="../seasons/" class="text-2xl font-black italic uppercase text-white hover:text-blue-500">Seasons</a>
+        <a href="../robot/" class="text-2xl font-black italic uppercase text-white hover:text-blue-500 text-center">Robot Designs</a>
+        <a href="../docs/" class="text-2xl font-black italic uppercase text-white hover:text-indigo-500">Docs</a>
+        <a href="../contact-us/" class="text-2xl font-black italic uppercase text-white hover:text-blue-500">Contact</a>
+        <a href="https://robotics-catalyst.org/donate/allied-algorithms" class="mt-4 px-10 py-4 bg-blue-600 text-white text-sm font-black uppercase rounded-full">Donate Now</a>
+    </div>
+</div>
+
+<script>
+    (function() {
+        const navWrapper = document.getElementById('navWrapper');
+        const navContainer = document.getElementById('navContainer');
+        const brandName = document.getElementById('brandName');
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const mobileMenu = document.getElementById('mobileMenu');
+        const hamburgerIcon = document.getElementById('hamburgerIcon');
+
+        // Mobile Menu Toggle
+        mobileMenuBtn.addEventListener('click', () => {
+            const isOpen = mobileMenu.classList.contains('opacity-100');
+            if (isOpen) {
+                mobileMenu.classList.remove('opacity-100', 'pointer-events-auto');
+                hamburgerIcon.children[0].classList.remove('rotate-45', 'translate-y-[9px]');
+                hamburgerIcon.children[1].classList.remove('opacity-0');
+                hamburgerIcon.children[2].classList.remove('-rotate-45', '-translate-y-[9px]');
+            } else {
+                mobileMenu.classList.add('opacity-100', 'pointer-events-auto');
+                hamburgerIcon.children[0].classList.add('rotate-45', 'translate-y-[9px]');
+                hamburgerIcon.children[1].classList.add('opacity-0');
+                hamburgerIcon.children[2].classList.add('-rotate-45', '-translate-y-[9px]');
+            }
+        });
+
+        function handleScroll() {
+            // Only apply the "Pill" effect on Desktop (768px+)
+            if (window.innerWidth >= 768) {
+                if (window.scrollY > 60) {
+                    navWrapper.style.top = '20px';
+                    navContainer.className = 'mx-auto px-10 bg-zinc-900/80 backdrop-blur-2xl border border-white/20 shadow-2xl rounded-full transition-all duration-500';
+                    navContainer.style.width = 'max-content';
+                    brandName.style.width = '0px';
+                    brandName.style.opacity = '0';
+                    brandName.style.overflow = 'hidden';
+                    brandName.style.marginRight = '0px';
+                } else {
+                    navWrapper.style.top = '0px';
+                    navContainer.className = 'w-full mx-auto px-6 bg-zinc-900/60 backdrop-blur-2xl border-b border-white/5 shadow-lg transition-all duration-500';
+                    navContainer.style.width = '100%';
+                    brandName.style.width = 'auto';
+                    brandName.style.opacity = '1';
+                    brandName.style.marginRight = '12px';
+                }
+            } else {
+                // RESET FOR MOBILE
+                navWrapper.style.top = '0px';
+                navContainer.className = 'w-full mx-auto px-6 bg-zinc-900/60 backdrop-blur-2xl border-b border-white/5 transition-all';
+                navContainer.style.width = '100%';
+                brandName.style.opacity = '1';
+                brandName.style.width = 'auto';
+            }
+        }
+
+        window.addEventListener('scroll', handleScroll);
+        window.addEventListener('resize', handleScroll);
+        handleScroll();
+    })();
+</script>

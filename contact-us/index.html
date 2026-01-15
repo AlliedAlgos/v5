@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Contact Us | Allied Algorithms</title>
+  <link rel="icon" type="image/x-icon" href="../images/Allied-Algorithms_logo.svg">
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
+  <script>
+    $(function () {
+      $("#navbar").load("../layout/navbar.html", function() {
+          window.dispatchEvent(new Event('scroll'));
+      });
+      $("#footer").load("../layout/footer.html");
+    });
+  </script>
+
+  <style>
+    body {
+        background-color: #050505;
+        color: #ffffff;
+    }
+
+    .hero-gradient {
+        background: radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.08) 0%, transparent 70%);
+    }
+
+    .contact-card {
+        background-color: rgba(24, 24, 27, 0.4); 
+        backdrop-filter: blur(40px);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 2rem;
+    }
+
+    .form-input {
+        background-color: rgba(255, 255, 255, 0.02);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 1rem;
+        transition: all 0.3s ease;
+        color: white;
+    }
+
+    .form-input:focus {
+        border-color: #3b82f6;
+        background-color: rgba(59, 130, 246, 0.03);
+        outline: none;
+        box-shadow: 0 0 15px rgba(59, 130, 246, 0.1);
+    }
+
+    .submit-btn {
+        background: #3b82f6;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .submit-btn:hover {
+        background: #2563eb;
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(37, 99, 235, 0.2);
+    }
+  </style>
+</head>
+
+<body class="font-sans min-h-screen flex flex-col pt-40">
+
+  <div id="navbar" class="fixed top-0 left-0 w-full z-50"></div>
+
+  <main class="flex-grow container mx-auto px-6">
+    
+    <section class="mb-20 relative py-16 hero-gradient rounded-3xl text-center">
+        <div class="max-w-4xl mx-auto">
+            <span class="text-blue-500 font-bold tracking-[0.4em] text-[10px] uppercase mb-6 block">Communication Channel</span>
+            <h1 class="text-6xl md:text-8xl font-bold tracking-tighter italic text-white leading-none">
+                GET IN <br> <span class="text-blue-500 italic">TOUCH.</span>
+            </h1>
+            <p class="text-zinc-500 text-lg mt-8 max-w-lg mx-auto font-light">Have a technical query or a partnership proposal? Our team is ready to respond.</p>
+        </div>
+    </section>
+
+    <section class="max-w-3xl mx-auto p-8 md:p-12 contact-card mb-32 shadow-2xl">
+      <form id="contactForm" class="space-y-8">
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div>
+              <label class="block mb-2 text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-500 ml-1">Identity</label>
+              <input type="text" id="name" placeholder="Name / Team Name" class="w-full p-4 form-input placeholder-zinc-700">
+            </div>
+
+            <div>
+              <label class="block mb-2 text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-500 ml-1">Digital Mail</label>
+              <input type="email" id="email" placeholder="email@address.com" required class="w-full p-4 form-input placeholder-zinc-700">
+            </div>
+        </div>
+
+        <div>
+          <label class="block mb-2 text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-500 ml-1">Message Brief</label>
+          <textarea id="message" rows="6" placeholder="Provide details regarding your inquiry..." required class="w-full p-4 form-input placeholder-zinc-700"></textarea>
+        </div>
+
+        <button type="submit" class="submit-btn w-full py-5 rounded-xl font-bold text-[11px] uppercase tracking-[0.3em] text-white">
+          Send Message
+        </button>
+
+      </form>
+
+      <p id="status" class="mt-8 text-center hidden font-bold text-[10px] uppercase tracking-widest italic"></p>
+    </section>
+  </main>
+
+  <div id="footer"></div>
+
+  <script>
+    const DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1377087321203150941/iK28JWFiXjPouGOpEVnvhExkIqPdp8H7P7HT5oSJHdpPFOgMsOde9s8fD-xSnyl_MNbQ";
+    const form = document.getElementById("contactForm");
+    const status = document.getElementById("status");
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const name = document.getElementById("name").value.trim() || "Anonymous Operator";
+      const email = document.getElementById("email").value.trim();
+      const message = document.getElementById("message").value.trim();
+
+      status.textContent = "UP-LINKING DATA...";
+      status.className = "mt-8 text-center text-blue-400 block animate-pulse";
+      status.classList.remove("hidden");
+
+      const payload = {
+        embeds: [{
+          title: "📩 Contact Message",
+          color: 38690, 
+          fields: [
+            { name: "Operator", value: name, inline: true },
+            { name: "Endpoint", value: email, inline: true },
+            { name: "Data", value: message }
+          ],
+          timestamp: new Date().toISOString()
+        }]
+      };
+
+      try {
+        const res = await fetch(DISCORD_WEBHOOK_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+
+        if (res.ok) {
+          status.textContent = "TRANSMISSION SUCCESSFUL.";
+          status.className = "mt-8 text-center text-blue-500";
+          form.reset();
+        } else { throw new Error(); }
+      } catch {
+        status.textContent = "TRANSMISSION ERROR: CONNECTION TIMEOUT.";
+        status.className = "mt-8 text-center text-red-500";
+      }
+    });
+  </script>
+
+</body>
+</html>

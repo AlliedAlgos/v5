@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Seasons | Allied Algorithms</title>
+    <link rel="icon" type="image/x-icon" href="../images/Allied-Algorithms_logo.svg" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
+    <script>
+        $(function () {
+            $("#navbar").load("../layout/navbar.html", function() {
+                window.dispatchEvent(new Event('scroll'));
+            });
+            $("#footer").load("../layout/footer.html");
+        });
+    </script>
+
+    <style>
+        body { background-color: #050505; color: #ffffff; overflow-x: hidden; }
+        .animate-fade-up { animation: fadeUp 0.8s ease forwards; opacity: 0; }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #050505; }
+        ::-webkit-scrollbar-thumb { background: #18181b; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #3b82f6; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col font-sans">
+    <div id="navbar" class="fixed top-0 left-0 w-full z-50"></div>
+    <main class="flex-grow pt-40">
+        <section class="container mx-auto px-6 mb-32">
+            <div id="current-season"></div>
+        </section>
+        <div class="w-full border-t border-white/5 bg-white/[0.02] py-16 text-center">
+            <span class="text-blue-500 font-bold tracking-[0.4em] text-[10px] uppercase block mb-2">The Journey</span>
+            <h2 class="text-3xl font-bold tracking-tighter italic uppercase text-zinc-400">Our Legacy</h2>
+        </div>
+        <div id="past-seasons-container"></div>
+    </main>
+    <div id="footer"></div>
+    <script type="module" src="seasons.js"></script>
+</body>
+</html>
