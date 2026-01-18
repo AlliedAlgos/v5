@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>AlliedWork – Sim</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { margin: 0; background: #000; height: 100vh; overflow: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: sans-serif; }
+    
+    /* Responsive Container */
+    #map-container {
+      position: relative;
+      width: 95vw;
+      height: 80vh;
+      max-width: 1200px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #mat { 
+      position: relative; 
+      width: 100%; 
+      height: 100%; 
+      background: url('https://static.wixstatic.com/media/41532e_7822743521f7432aae59f69bd7fa9444~mv2.png/v1/fill/w_888,h_508,al_c/41532e_7822743521f7432aae59f69bd7fa9444~mv2.png') center/contain no-repeat; 
+      border: 1px solid #222; 
+      cursor: crosshair;
+      overflow: hidden;
+    }
+
+    #robot { 
+      position: absolute; 
+      /* Using percentage-based size for scaling */
+      width: 4%; 
+      aspect-ratio: 1/1;
+      background: #fff; 
+      border: 2px solid #000; 
+      transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); 
+      z-index: 10; 
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+      box-shadow: 0 0 20px rgba(0,0,0,0.5);
+      transform-origin: center center;
+    }
+
+    /* Red indicator for the front of the robot */
+    #pointer { 
+      width: 0; 
+      height: 0; 
+      border-left: 6px solid transparent; 
+      border-right: 6px solid transparent; 
+      border-bottom: 12px solid #ef4444; 
+      /* Pointer faces up relative to robot 0 deg */
+      margin-bottom: 2px;
+    }
+
+    .hud { 
+      position: fixed; 
+      top: 10px; 
+      left: 10px; 
+      background: rgba(0,0,0,0.8); 
+      backdrop-filter: blur(5px); 
+      padding: 8px 15px; 
+      border-radius: 12px; 
+      color: #fff; 
+      font-family: monospace; 
+      font-size: 11px; 
+      border: 1px solid rgba(255,255,255,0.1);
+      z-index: 100;
+    }
+
+    .controls {
+      position: fixed;
+      bottom: 20px;
+      display: flex;
+      gap: 12px;
+      z-index: 100;
+    }
+
+    .btn-action {
+      padding: 10px 20px;
+      border-radius: 99px;
+      font-weight: bold;
+      font-size: 13px;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="hud">
+    <div>POS: <span id="vX">0</span>, <span id="vY">0</span></div>
+    <div>HEAD: <span id="vH">0</span>° (0° is UP)</div>
+  </div>
+  
+  <div id="map-container">
+    <div id="mat">
+      <div id="robot" style="left:10%; top:80%; transform: rotate(0deg);">
+        <div id="pointer"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <button id="savePosBtn" class="btn-action bg-blue-600 hover:bg-blue-500 text-white shadow-lg active:scale-95">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/></svg>
+      SAVE POINT (<span id="savedCount">0</span>/2)
+    </button>
+    <button id="runBtn" class="btn-action bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg active:scale-95">
+      <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg> RUN MISSION
+    </button>
+  </div>
+
+  <script>
+    const robot = document.getElementById('robot');
+    const mat = document.getElementById('mat');
+    const bc = new BroadcastChannel('allied_sync');
+    
+    // State using percentages for responsive scaling
+    let posX = 10; // % from left
+    let posY = 80; // % from top
+    let heading = 0; // 0 is UP
+    let savedPoints = [];
+
+    // Mapping clicks to percentage based positions
+    mat.addEventListener('mousedown', (e) => {
+      const rect = mat.getBoundingClientRect();
+      const clickX = ((e.clientX - rect.left) / rect.width) * 100;
+      const clickY = ((e.clientY - rect.top) / rect.height) * 100;
+
+      // Calculate distance and angle for the editor
+      // Note: In screen coords, dy is inverted. 
+      const dx = clickX - posX;
+      const dy = clickY - posY; 
+      const dist = Math.sqrt(dx*dx + dy*dy) * 10; // Arbitrary scale factor for "units"
+      
+      // Calculate angle where 0 is UP (-90 in standard Math.atan2)
+      // Math.atan2(y, x) -> screen y is positive downwards
+      const targetAngleRad = Math.atan2(dy, dx);
+      let targetAngleDeg = (targetAngleRad * 180 / Math.PI) + 90;
+      
+      let relTurn = targetAngleDeg - heading;
+      while(relTurn > 180) relTurn -= 360;
+      while(relTurn < -180) relTurn += 360;
+
+      posX = clickX;
+      posY = clickY;
+      heading = targetAngleDeg;
+      
+      updateUI();
+      bc.postMessage({ type: 'RECORD_MOVE', dist, angle: relTurn });
+    });
+
+    // Save Point Logic
+    document.getElementById('savePosBtn').onclick = () => {
+      if (savedPoints.length >= 2) {
+        savedPoints = []; // Clear if full to allow restart or just shift
+      }
+      
+      savedPoints.push({ x: posX, y: posY, h: heading });
+      document.getElementById('savedCount').innerText = savedPoints.length;
+      
+      // Small visual feedback on the robot
+      robot.style.borderColor = "#3b82f6";
+      setTimeout(() => robot.style.borderColor = "#000", 300);
+      
+      console.log("Point Saved:", savedPoints[savedPoints.length-1]);
+    };
+
+    document.getElementById('runBtn').onclick = () => bc.postMessage({ type: 'REQUEST_RUN' });
+
+    bc.onmessage = async (e) => {
+      if(e.data.type === 'SET_POS') { 
+        posX = e.data.x; 
+        posY = e.data.y; 
+        updateUI(); 
+      }
+      if(e.data.type === 'RUN_CODE') {
+        const lines = e.data.command.split('\n');
+        for(let l of lines) {
+          l = l.trim();
+          if(l.startsWith('drive(')) {
+            const d = parseInt(l.match(/\d+/)?.[0] || 0);
+            await move(d / 10); // Scale down units to match % logic
+          } else if(l.startsWith('turn(')) {
+            const a = parseInt(l.match(/-?\d+/)?.[0] || 0);
+            await rotate(a);
+          }
+        }
+      }
+    };
+
+    function move(d) {
+      return new Promise(res => {
+        // 0 deg is UP (-90 rad in standard circle)
+        const rad = (heading - 90) * (Math.PI/180);
+        posX += Math.cos(rad) * d;
+        posY += Math.sin(rad) * d;
+        updateUI();
+        setTimeout(res, 600);
+      });
+    }
+
+    function rotate(a) {
+      return new Promise(res => {
+        heading += a;
+        updateUI();
+        setTimeout(res, 600);
+      });
+    }
+
+    function updateUI() {
+      // Keep within bounds
+      posX = Math.max(0, Math.min(100, posX));
+      posY = Math.max(0, Math.min(100, posY));
+
+      // Set position via percentage for perfect scaling
+      robot.style.left = `calc(${posX}% - 2%)`; // 2% offset to center 4% width robot
+      robot.style.top = `calc(${posY}% - 2%)`;
+      robot.style.transform = `rotate(${heading}deg)`;
+      
+      document.getElementById('vX').innerText = Math.round(posX);
+      document.getElementById('vY').innerText = Math.round(posY);
+      document.getElementById('vH').innerText = Math.round(heading);
+    }
+
+    // Initial positioning
+    updateUI();
+  </script>
+</body>
+</html>

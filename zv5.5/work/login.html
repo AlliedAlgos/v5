@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>AlliedWork – Login</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="min-h-screen bg-[#050505] flex items-center justify-center text-white font-sans">
+  <div class="w-full max-w-md bg-zinc-900/40 backdrop-blur-2xl border border-white/5 rounded-3xl p-10 shadow-2xl">
+    <div class="text-center mb-8">
+      <h1 class="text-3xl font-bold tracking-tighter mb-2 italic">ALLIED WORK</h1>
+      <p class="text-zinc-500 text-sm">Sign in to access your code</p>
+    </div>
+
+    <div class="flex bg-white/5 rounded-2xl p-1.5 mb-8 border border-white/5">
+      <button id="loginTab" class="flex-1 py-2.5 rounded-xl bg-zinc-800 text-sm font-medium transition-all">Login</button>
+      <button id="signupTab" class="flex-1 py-2.5 rounded-xl text-sm font-medium text-zinc-500 hover:text-white transition-all">Sign Up</button>
+    </div>
+
+    <div class="space-y-4">
+      <div class="space-y-2">
+        <label class="text-xs font-semibold uppercase tracking-wider text-zinc-500 ml-1">Email</label>
+        <input id="email" type="email" placeholder="Email" class="w-full px-5 py-4 rounded-2xl bg-white/5 border border-white/10 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition" />
+      </div>
+      <div class="space-y-2">
+        <label class="text-xs font-semibold uppercase tracking-wider text-zinc-500 ml-1">Password</label>
+        <input id="password" type="password" placeholder="••••••••" class="w-full px-5 py-4 rounded-2xl bg-white/5 border border-white/10 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition" />
+      </div>
+      <div id="confirmWrapper" class="hidden space-y-2">
+        <label class="text-xs font-semibold uppercase tracking-wider text-zinc-500 ml-1">Confirm Password</label>
+        <input id="confirmPassword" type="password" placeholder="••••••••" class="w-full px-5 py-4 rounded-2xl bg-white/5 border border-white/10 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition" />
+      </div>
+    </div>
+
+    <button id="actionBtn" class="w-full mt-8 py-4 rounded-2xl font-bold bg-white text-black hover:bg-zinc-200 transition-all active:scale-[0.98]">Login</button>
+
+    <div class="flex items-center gap-4 my-8 text-zinc-600 text-xs font-bold uppercase tracking-widest">
+      <div class="flex-1 h-px bg-white/5"></div> or <div class="flex-1 h-px bg-white/5"></div>
+    </div>
+
+    <div class="grid grid-cols-1 gap-4">
+      <button id="googleBtn" class="flex items-center justify-center gap-2 bg-white/5 border border-white/10 py-3 rounded-2xl hover:bg-white/10 transition">
+        <img class="h-5" src="https://www.gstatic.com/images/branding/product/1x/gsa_512dp.png">
+        <span class="text-sm font-medium">Sign in with Google</span>
+      </button>
+    </div>
+    <p id="msg" class="text-center text-xs mt-6 min-h-[1em] font-medium"></p>
+  </div>
+
+  <script type="module">
+    import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+    const supabase = createClient("https://bqagmevmzpuvgiigyime.supabase.co", "sb_publishable_rcXEO06dge8l_iJI_AUbSA_vD321UNP");
+
+    let mode = "login";
+    const loginTab = document.getElementById("loginTab"), signupTab = document.getElementById("signupTab"), actionBtn = document.getElementById("actionBtn"), confirmWrapper = document.getElementById("confirmWrapper"), msg = document.getElementById("msg");
+
+    function setMode(m) {
+      mode = m; msg.textContent = "";
+      if (m === "login") {
+        confirmWrapper.classList.add("hidden"); actionBtn.textContent = "Login";
+        loginTab.classList.add("bg-zinc-800", "text-white"); signupTab.classList.remove("bg-zinc-800", "text-white");
+      } else {
+        confirmWrapper.classList.remove("hidden"); actionBtn.textContent = "Create Account";
+        signupTab.classList.add("bg-zinc-800", "text-white"); loginTab.classList.remove("bg-zinc-800", "text-white");
+      }
+    }
+    loginTab.onclick = () => setMode("login");
+    signupTab.onclick = () => setMode("signup");
+
+    actionBtn.onclick = async () => {
+      const email = document.getElementById("email").value, password = document.getElementById("password").value, confirm = document.getElementById("confirmPassword").value;
+      if (!email || !password) { msg.className = "text-center text-xs mt-6 text-amber-500"; msg.textContent = "Fill out all fields"; return; }
+      if (mode === "signup" && password !== confirm) { msg.className = "text-center text-xs mt-6 text-red-500"; msg.textContent = "Passwords do not match"; return; }
+      
+      const { error } = mode === "login" ? await supabase.auth.signInWithPassword({ email, password }) : await supabase.auth.signUp({ email, password });
+      if (error) { msg.className = "text-center text-xs mt-6 text-red-500"; msg.textContent = error.message; }
+      else { window.location.href = "index.html"; }
+    };
+
+    const redirectUrl = window.location.origin + window.location.pathname.replace('login.html', 'index.html');
+    document.getElementById("googleBtn").onclick = () => supabase.auth.signInWithOAuth({ provider: "google", options: { redirectTo: redirectUrl } });
+    if (session) window.location.href = "index.html";
+  </script>
+</body>
+</html>

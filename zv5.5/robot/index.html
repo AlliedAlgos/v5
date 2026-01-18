@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Robot Designs | Allied Algorithms</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+        body {
+            background-color: #050505;
+            color: #ffffff;
+            overflow-x: hidden;
+        }
+
+        .hero-gradient {
+            background: radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.08) 0%, transparent 70%);
+        }
+
+        /* Standardized Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #050505; }
+        ::-webkit-scrollbar-thumb { background: #18181b; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #3b82f6; }
+
+        .main-content {
+            padding-top: 140px;
+        }
+
+        .carousel-image {
+            transition: opacity 0.5s ease-in-out;
+        }
+    </style>
+</head>
+
+<body class="font-sans min-h-screen flex flex-col">
+    <div id="navbar"></div>
+
+    <main class="main-content flex-grow container mx-auto px-6">
+        
+        <section class="mb-20 relative py-16 hero-gradient rounded-3xl text-center">
+            <div class="max-w-4xl mx-auto">
+                <span class="text-blue-500 font-bold tracking-[0.4em] text-[10px] uppercase mb-6 block">Hardware Library</span>
+                <h1 class="text-6xl md:text-8xl font-bold tracking-tighter italic text-white leading-none">
+                    ROBOT <br> <span class="text-blue-500 italic">DESIGNS.</span>
+                </h1>
+                <p class="text-zinc-500 text-lg mt-8 max-w-lg mx-auto font-light leading-relaxed">
+                    Explore our open-source chassis, attachments, and 3D CAD models optimized for competition.
+                </p>
+            </div>
+        </section>
+
+        <div id="robot-cards-container" class="grid grid-cols-1 gap-12 mb-32 max-w-5xl mx-auto">
+            <div class="col-span-full text-center py-20">
+                <p class="text-blue-500 animate-pulse font-bold tracking-widest uppercase">Fetching Database...</p>
+            </div>
+        </div>
+    </main>
+
+    <div id="footer"></div>
+
+    <script src="./robotDesigns.js"></script>
+</body>
+</html>

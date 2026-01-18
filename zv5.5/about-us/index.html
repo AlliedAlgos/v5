@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us | Allied Algorithms</title>
+    <link rel="icon" type="image/x-icon" href="../images/Allied-Algorithms_logo.svg" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    
+    <script type="module" src="members.js"></script>
+
+    <script>
+        $(function () {
+            $("#navbar").load("../layout/navbar.html", function() {
+                window.dispatchEvent(new Event('scroll'));
+            });
+            $("#footer").load("../layout/footer.html");
+        });
+    </script>
+
+    <style>
+        body { background-color: #050505; color: #ffffff; }
+        .hero-gradient {
+            background: radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.1) 0%, transparent 70%);
+        }
+        .member-card {
+            background: rgba(24, 24, 27, 0.4);
+            backdrop-filter: blur(40px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 1.5rem;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            padding: 2.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+        .member-card:hover {
+            transform: translateY(-8px);
+            border-color: rgba(59, 130, 246, 0.4);
+        }
+        .profile-container {
+            width: 200px;
+            height: 220px;
+            border-radius: 1.5rem;
+            position: relative;
+            padding: 3px;
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.5), rgba(6, 182, 212, 0.5));
+            overflow: hidden;
+            margin-bottom: 1.5rem;
+        }
+        .profile-image {
+            width: 100%;
+            height: 100%;
+            border-radius: 1.25rem;
+            object-fit: cover;
+            background: #000;
+        }
+        .animate-fade-in { animation: fadeIn 0.8s ease forwards; opacity: 0; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col pt-40">
+    <div id="navbar" class="fixed top-0 left-0 w-full z-50"></div>
+
+    <main class="flex-grow container mx-auto px-6">
+        <section class="mb-32 relative py-20 hero-gradient rounded-3xl">
+            <div class="max-w-4xl mx-auto text-center">
+                <span class="text-blue-500 font-bold tracking-[0.4em] text-xs uppercase mb-6 block">Our Identity</span>
+                <h1 class="text-6xl md:text-8xl font-bold tracking-tighter italic text-white leading-none mb-8">
+                    WE ARE <br> <span class="text-blue-500 italic">ALLIED.</span>
+                </h1>
+            </div>
+        </section>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-12 mb-32">
+            <div class="p-12 rounded-3xl border border-white/5 bg-white/[0.02]">
+                <h3 class="text-blue-500 font-bold text-xs uppercase tracking-[0.2em] mb-4">The Mission</h3>
+                <p class="text-2xl text-white font-medium italic">"Democratizing high-level robotics for everyone."</p>
+            </div>
+            <div class="p-12 rounded-3xl border border-white/5 bg-white/[0.02]">
+                <h3 class="text-blue-500 font-bold text-xs uppercase tracking-[0.2em] mb-4">The Vision</h3>
+                <p class="text-2xl text-white font-medium italic">"Building the engineers of tomorrow, today."</p>
+            </div>
+        </div>
+
+        <section class="mb-32">
+            <div class="mb-16 text-center md:text-left">
+                <h2 class="text-5xl font-bold tracking-tighter italic text-white">The Core Team</h2>
+                <p class="text-zinc-500 text-sm mt-2">The minds driving our technical and strategic excellence.</p>
+            </div>
+            
+            <div id="members-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                </div>
+        </section>
+    </main>
+
+    <div id="footer"></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const checkRender = setInterval(() => {
+                if (typeof window.renderMembers === 'function') {
+                    window.renderMembers();
+                    clearInterval(checkRender);
+                }
+            }, 100);
+        });
+    </script>
+</body>
+</html>
