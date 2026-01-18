@@ -1,4 +1,18 @@
-<div id="navWrapper" class="fixed top-0 left-0 right-0 z-[9999] flex justify-center transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)]">
+<!-- Worlds Banner -->
+<div id="worldsBanner" class="fixed top-0 left-0 right-0 z-[10000] bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white py-3 px-6 transition-all duration-500">
+    <div class="max-w-7xl mx-auto flex items-center justify-center gap-3 text-center">
+        <div class="flex items-center gap-2">
+            <i class="fa-solid fa-trophy text-yellow-300 animate-pulse"></i>
+            <span class="font-bold text-sm sm:text-base">Allied Algos is going to Worlds!</span>
+        </div>
+        <a href="https://www.firstinspires.org/programs/first-championship" class="px-4 py-1.5 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-full text-xs font-semibold transition-all hover:scale-105 border border-white/30">
+            Learn More →
+        </a>
+    </div>
+</div>
+
+<!-- Navigation (adjusted for banner) -->
+<div id="navWrapper" class="fixed left-0 right-0 z-[9999] flex justify-center transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)]" style="top: 48px;">
     <div id="navContainer" class="w-full mx-auto px-6 bg-zinc-900/60 backdrop-blur-2xl border-b border-white/5 shadow-lg shadow-black/20 transition-all duration-500">
         <div class="flex justify-between items-center h-16">
             
@@ -25,7 +39,7 @@
                     <button class="text-zinc-500 group-hover:text-white text-sm font-medium transition-colors flex items-center gap-1 outline-none">
                         Projects <i class="fa-solid fa-chevron-down text-[10px] transition-transform group-hover:rotate-180"></i>
                     </button>
-                    <div id="projectDropdown" class="fixed top-[64px] left-1/2 -translate-x-1/2 w-[85%] opacity-0 invisible translate-y-3 group-hover:opacity-100 group-hover:visible group-hover:translate-y-0 transition-all duration-500 ease-out z-[10000] pointer-events-none group-hover:pointer-events-auto">
+                    <div id="projectDropdown" class="fixed left-1/2 -translate-x-1/2 w-[85%] opacity-0 invisible translate-y-3 group-hover:opacity-100 group-hover:visible group-hover:translate-y-0 transition-all duration-500 ease-out z-[10000] pointer-events-none group-hover:pointer-events-auto" style="top: calc(48px + 64px);">
                         <div class="pt-4"> 
                             <div class="bg-zinc-900/95 backdrop-blur-3xl rounded-[2.5rem] shadow-2xl border border-white/10 p-8">
                                 <div class="grid grid-cols-3 gap-8 text-left">
@@ -61,18 +75,20 @@
         <a href="../robot/" class="text-2xl font-black italic uppercase text-white hover:text-blue-500 text-center">Robot Designs</a>
         <a href="../docs/" class="text-2xl font-black italic uppercase text-white hover:text-indigo-500">Docs</a>
         <a href="./work/" class="text-2xl font-black italic uppercase text-white hover:text-blue-500">Work</a>
-        <a href="../contact-us/" class="    mt-4 px-10 py-4 bg-blue-600 text-white text-sm font-black uppercase rounded-full">Contact</a>
+        <a href="../contact-us/" class="mt-4 px-10 py-4 bg-blue-600 text-white text-sm font-black uppercase rounded-full">Contact</a>
     </div>
 </div>
 
 <script>
     (function() {
+        const worldsBanner = document.getElementById('worldsBanner');
         const navWrapper = document.getElementById('navWrapper');
         const navContainer = document.getElementById('navContainer');
         const brandName = document.getElementById('brandName');
         const mobileMenuBtn = document.getElementById('mobileMenuBtn');
         const mobileMenu = document.getElementById('mobileMenu');
         const hamburgerIcon = document.getElementById('hamburgerIcon');
+        const projectDropdown = document.getElementById('projectDropdown');
 
         // Mobile Menu Toggle
         mobileMenuBtn.addEventListener('click', () => {
@@ -91,9 +107,14 @@
         });
 
         function handleScroll() {
+            const bannerHeight = worldsBanner.offsetHeight;
+            const scrollThreshold = 60;
+            
             // Only apply the "Pill" effect on Desktop (768px+)
             if (window.innerWidth >= 768) {
-                if (window.scrollY > 60) {
+                if (window.scrollY > scrollThreshold) {
+                    // Hide banner
+                    worldsBanner.style.transform = 'translateY(-100%)';
                     navWrapper.style.top = '20px';
                     navContainer.className = 'mx-auto px-10 bg-zinc-900/80 backdrop-blur-2xl border border-white/20 shadow-2xl rounded-full transition-all duration-500';
                     navContainer.style.width = 'max-content';
@@ -102,16 +123,21 @@
                     brandName.style.overflow = 'hidden';
                     brandName.style.marginRight = '0px';
                 } else {
-                    navWrapper.style.top = '0px';
+                    // Show banner
+                    worldsBanner.style.transform = 'translateY(0)';
+                    navWrapper.style.top = bannerHeight + 'px';
                     navContainer.className = 'w-full mx-auto px-6 bg-zinc-900/60 backdrop-blur-2xl border-b border-white/5 shadow-lg transition-all duration-500';
                     navContainer.style.width = '100%';
                     brandName.style.width = 'auto';
                     brandName.style.opacity = '1';
                     brandName.style.marginRight = '12px';
                 }
+                // Update dropdown position
+                projectDropdown.style.top = `calc(${navWrapper.offsetTop}px + 64px)`;
             } else {
                 // RESET FOR MOBILE
-                navWrapper.style.top = '0px';
+                worldsBanner.style.transform = 'translateY(0)';
+                navWrapper.style.top = bannerHeight + 'px';
                 navContainer.className = 'w-full mx-auto px-6 bg-zinc-900/60 backdrop-blur-2xl border-b border-white/5 transition-all';
                 navContainer.style.width = '100%';
                 brandName.style.opacity = '1';

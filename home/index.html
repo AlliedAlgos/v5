@@ -24,7 +24,7 @@
     </script>
 
     <style>
-        /* VISIBLE BLUEPRINT GRID */
+
         body { 
             background-color: #050505;
             background-image: 
@@ -32,8 +32,6 @@
                 linear-gradient(90deg, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
             background-size: 45px 45px;
         }
-
-        /* INTENSE CURSOR SPOTLIGHT */
         .spotlight {
             background: radial-gradient(
                 900px circle at var(--x, 50%) var(--y, 50%), 
@@ -67,26 +65,26 @@
             <h1 class="text-6xl md:text-9xl font-black italic uppercase tracking-tighter leading-none mb-8 bg-gradient-to-b from-white to-white/20 bg-clip-text text-transparent">
                 Allied <br/> <span class="text-indigo-500 drop-shadow-[0_0_40px_rgba(99,102,241,0.5)]">Algorithms</span>
             </h1>
-            <p class="text-zinc-500 text-xs md:text-sm font-black uppercase tracking-[0.8em] max-w-3xl leading-relaxed">
+            <p class="text-zinc-500 text-xm md:text-sm font-black uppercase tracking-[0.8em] max-w-3xl leading-relaxed">
                 Where engineering meets creativity
             </p>
         </header>
 
         <section class="grid grid-cols-2 lg:grid-cols-4 gap-px bg-white/10 border border-white/10 rounded-[3rem] overflow-hidden mb-24 shadow-2xl backdrop-blur-md">
             <div class="bg-black/60 p-12 text-center hover:bg-indigo-500/5 transition-colors group">
-                <p id="live-designs" class="text-5xl font-black italic text-white group-hover:text-indigo-400 animate-pulse-slow">0</p>
+                <p id="live-designs" class="text-5xl font-black italic text-white group-hover:text-indigo-400 animate-pulse-slow">-</p>
                 <p class="text-[10px] font-bold uppercase tracking-[0.4em] text-zinc-600 mt-3">Robot-Designs</p>
             </div>
             <div class="bg-black/60 p-12 text-center hover:bg-indigo-500/5 transition-colors group border-l border-white/10">
-                <p id="live-outreach" class="text-5xl font-black italic text-white group-hover:text-indigo-400 animate-pulse-slow">0</p>
+                <p id="live-outreach" class="text-5xl font-black italic text-white group-hover:text-indigo-400 animate-pulse-slow">-</p>
                 <p class="text-[10px] font-bold uppercase tracking-[0.4em] text-zinc-600 mt-3">Impact</p>
             </div>
             <div class="bg-black/60 p-12 text-center hover:bg-indigo-500/5 transition-colors group border-l border-white/10">
-                <p id="live-sponsors" class="text-5xl font-black italic text-white group-hover:text-indigo-400 animate-pulse-slow">0</p>
+                <p id="live-sponsors" class="text-5xl font-black italic text-white group-hover:text-indigo-400 animate-pulse-slow">-</p>
                 <p class="text-[10px] font-bold uppercase tracking-[0.4em] text-zinc-600 mt-3">Partners</p>
             </div>
             <div class="bg-black/60 p-12 text-center hover:bg-indigo-500/5 transition-colors group border-l border-white/10">
-                <p id="live-seasons" class="text-5xl font-black italic text-white group-hover:text-indigo-400 animate-pulse-slow">0</p>
+                <p id="live-seasons" class="text-5xl font-black italic text-white group-hover:text-indigo-400 animate-pulse-slow">-</p>
                 <p class="text-[10px] font-bold uppercase tracking-[0.4em] text-zinc-600 mt-3">Seasons with FLL</p>
             </div>
         </section>
@@ -100,9 +98,10 @@
                 </p>
             </div>
 
-            <div class="md:col-span-4 p-12 rounded-[4rem] bg-indigo-600/5 border border-indigo-500/20 flex flex-col justify-between items-center text-center">
-                <h2 class="text-xs font-black uppercase tracking-[0.6em] text-indigo-400">The Challenge</h2>
-                <p class="text-sm text-zinc-400 leading-relaxed italic px-4">"Hands-on robotics that teaches students how to engineer the world around them."</p>
+            <div class="md:col-span-4 p-5 pt-10 rounded-[4rem] bg-indigo-600/5 border border-indigo-500/20 flex flex-col justify-between items-center text-center">
+                <h2 class="text-xl font-black uppercase tracking-[0.6em] text-indigo-400">First Lego League</h2>
+                <p class="text-xm text-zinc-400 leading-relaxed italic px-4">FIRST® LEGO® League (FLL) is a global STEM program for children ages 4–16 (divided into three divisions: Discover, Explore, and Challenge) that introduces science, technology, engineering, and math through hands-on, playful learning
+. Teams design, build, and program robots using LEGO® technology to solve real-world, theme-based challenges while developing teamwork, critical thinking, and coding skill</p>     
                 <div class="text-indigo-500/10 text-7xl mb-4"><i class="fa-solid fa-microchip"></i></div>
             </div>
 
@@ -137,7 +136,6 @@
 
         async function updateStats() {
             try {
-                // Fetch Design Count instead of Members
                 const { count: designs } = await sb.from('robot_designs').select('*', { count: 'exact', head: true });
                 const { count: sponsors } = await sb.from('sponsors').select('*', { count: 'exact', head: true });
                 const { count: seasons } = await sb.from('seasons').select('*', { count: 'exact', head: true });
