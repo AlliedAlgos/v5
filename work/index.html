@@ -2,190 +2,619 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AlliedWork – Mission Control</title>
-<script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.41.0/min/vs/loader.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
   :root {
-    --bg-dark: #111827;
-    --bg-light: #ffffff;
-    --text-dark: #f9fafb;
-    --text-light: #111827;
-    --border: rgba(255,255,255,0.08);
+    --bg-primary: #0a0e1a;
+    --bg-secondary: #111827;
+    --bg-tertiary: #1a1f35;
+    --text-primary: #f9fafb;
+    --text-secondary: #9ca3af;
+    --text-tertiary: #6b7280;
+    --border: rgba(255,255,255,0.06);
     --accent-teal: #14b8a6;
+    --accent-teal-hover: #0d9488;
+    --accent-cyan: #06b6d4;
+    --glass-bg: rgba(17, 24, 39, 0.7);
+    --glass-border: rgba(255, 255, 255, 0.08);
   }
 
   body {
-    margin:0;
-    font-family: 'Inter', sans-serif;
-    background-color: var(--bg-dark);
-    color: var(--text-dark);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: linear-gradient(135deg, #0a0e1a 0%, #111827 50%, #0f1419 100%);
+    color: var(--text-primary);
+    overflow: hidden;
+    height: 100vh;
+    width: 100vw;
+  }
+
+  /* Animated background */
+  .bg-pattern {
+    position: fixed;
+    inset: 0;
+    background-image: 
+      radial-gradient(circle at 20% 50%, rgba(20, 184, 166, 0.05) 0%, transparent 50%),
+      radial-gradient(circle at 80% 80%, rgba(6, 182, 212, 0.05) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Sidebar */
+  .sidebar {
+    position: relative;
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px);
+    border-right: 1px solid var(--glass-border);
+    width: 72px;
+    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.3);
+  }
+
+  .sidebar:hover {
+    width: 240px;
+  }
+
+  .sidebar-logo {
+    height: 72px;
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    border-bottom: 1px solid var(--border);
+    font-weight: 700;
+    font-size: 20px;
+    letter-spacing: -0.5px;
+    background: linear-gradient(135deg, var(--accent-teal), var(--accent-cyan));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .sidebar-nav {
+    flex: 1;
+    padding: 24px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 12px 20px;
+    color: var(--text-secondary);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
     overflow: hidden;
   }
 
-  .glass-sidebar {
-    background: rgba(15,15,15,0.8);
+  .nav-item::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: var(--accent-teal);
+    transform: scaleY(0);
+    transition: transform 0.2s;
+  }
+
+  .nav-item:hover {
+    color: var(--text-primary);
+    background: rgba(255, 255, 255, 0.05);
+  }
+
+  .nav-item:hover::before {
+    transform: scaleY(1);
+  }
+
+  .nav-item svg {
+    width: 22px;
+    height: 22px;
+    flex-shrink: 0;
+  }
+
+  .nav-label {
+    margin-left: 16px;
+    font-size: 14px;
+    font-weight: 500;
+    opacity: 0;
+    white-space: nowrap;
+    transition: opacity 0.3s;
+  }
+
+  .sidebar:hover .nav-label {
+    opacity: 1;
+  }
+
+  .sidebar-footer {
+    padding: 20px;
+    border-top: 1px solid var(--border);
+  }
+
+  .user-profile {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+    padding: 8px;
+    border-radius: 12px;
+    transition: background 0.2s;
+  }
+
+  .user-profile:hover {
+    background: rgba(255, 255, 255, 0.03);
+  }
+
+  .user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 2px solid var(--accent-teal);
+    object-fit: cover;
+    flex-shrink: 0;
+  }
+
+  .user-name {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    opacity: 0;
+    transition: opacity 0.3s;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .sidebar:hover .user-name {
+    opacity: 1;
+  }
+
+  .logout-btn {
+    width: 100%;
+    padding: 10px 12px;
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    color: #ef4444;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 14px;
+    font-weight: 500;
+  }
+
+  .logout-btn:hover {
+    background: rgba(239, 68, 68, 0.2);
+    border-color: rgba(239, 68, 68, 0.4);
+  }
+
+  /* Main content */
+  .main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    min-width: 0;
+  }
+
+  .header-badge {
+    position: absolute;
+    top: 24px;
+    right: 24px;
+    padding: 8px 16px;
+    background: var(--glass-bg);
     backdrop-filter: blur(20px);
-    border-right: 1px solid var(--border);
-    width: 64px;
-    transition: width 0.3s;
-    z-index:50;
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    font-size: 12px;
+    color: var(--text-secondary);
+    z-index: 10;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
   }
-  .glass-sidebar:hover { width: 200px; }
 
-  .sidebar-label { opacity:0; display:none; margin-left:15px; }
-  .glass-sidebar:hover .sidebar-label { opacity:1; display:block; }
-
-  .pill-tab {
-    padding:8px 20px;
-    border-radius:99px;
-    font-size:13px;
-    color:#52525b;
-    cursor:pointer;
-    transition:0.2s;
+  .header-badge span {
+    color: var(--accent-teal);
+    font-weight: 600;
   }
-  .pill-tab.active {
-    background: rgba(255,255,255,0.05);
-    color:white;
+
+  .tab-bar {
+    height: 56px;
+    display: flex;
+    align-items: center;
+    padding: 0 24px;
+    gap: 8px;
+    border-bottom: 1px solid var(--border);
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px);
+  }
+
+  .tab {
+    padding: 8px 20px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-tertiary);
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 1px solid transparent;
+  }
+
+  .tab:hover {
+    color: var(--text-secondary);
+    background: rgba(255, 255, 255, 0.03);
+  }
+
+  .tab.active {
+    background: rgba(20, 184, 166, 0.1);
+    color: var(--accent-teal);
+    border: 1px solid rgba(20, 184, 166, 0.2);
+  }
+
+  .editor-wrapper {
+    flex: 1;
+    position: relative;
+  }
+
+  #editor-container {
+    position: absolute;
+    inset: 0;
+  }
+
+  .bottom-panel {
+    height: 40%;
+    display: flex;
+    border-top: 1px solid var(--border);
+    background: var(--bg-primary);
+  }
+
+  .terminal {
+    width: 35%;
+    padding: 20px;
+    font-family: 'Monaco', 'Menlo', monospace;
+    font-size: 13px;
+    display: flex;
+    flex-direction: column;
+    background: var(--bg-secondary);
+  }
+
+  .terminal-output {
+    flex: 1;
+    overflow-y: auto;
+    margin-bottom: 16px;
+    line-height: 1.6;
+  }
+
+  .terminal-output::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .terminal-output::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .terminal-output::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+  }
+
+  .terminal-line {
+    margin: 2px 0;
+    color: var(--text-tertiary);
+  }
+
+  .terminal-line.success {
+    color: var(--accent-teal);
+  }
+
+  .terminal-line.error {
+    color: #ef4444;
+  }
+
+  .terminal-input-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+  }
+
+  .terminal-prompt {
+    color: var(--accent-teal);
+    font-weight: 600;
+  }
+
+  .terminal-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: inherit;
+  }
+
+  .terminal-input::placeholder {
+    color: var(--text-tertiary);
+  }
+
+  .map-panel {
+    flex: 1;
+    border-left: 1px solid var(--border);
+    padding: 16px;
+    background: var(--bg-primary);
+  }
+
+  .map-frame {
+    width: 100%;
+    height: 100%;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    background: #000;
+  }
+
+  /* Modal */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(8px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 200;
+    animation: fadeIn 0.2s;
+  }
+
+  .modal-overlay.show {
+    display: flex;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  .modal {
+    background: var(--bg-secondary);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    padding: 32px;
+    min-width: 320px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .modal-title {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 24px;
+    color: var(--text-primary);
+  }
+
+  .theme-toggle-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 12px;
     border: 1px solid var(--border);
   }
 
-  #editor-container { position:absolute; inset:0; }
+  .theme-label {
+    font-size: 14px;
+    color: var(--text-secondary);
+  }
 
-  .modal-backdrop {
-    background: rgba(0,0,0,0.4);
-    backdrop-filter: blur(5px);
+  .toggle-switch {
+    position: relative;
+    width: 56px;
+    height: 28px;
+    background: var(--text-tertiary);
+    border-radius: 14px;
+    cursor: pointer;
+    transition: background 0.3s;
+  }
+
+  .toggle-switch.active {
+    background: var(--accent-teal);
+  }
+
+  .toggle-ball {
+    position: absolute;
+    left: 3px;
+    top: 3px;
+    width: 22px;
+    height: 22px;
+    background: white;
+    border-radius: 50%;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  }
+
+  .toggle-switch.active .toggle-ball {
+    transform: translateX(28px);
+  }
+
+  .docs-link {
+    display: inline-block;
+    padding: 12px 24px;
+    background: linear-gradient(135deg, var(--accent-teal), var(--accent-cyan));
+    color: white;
+    font-weight: 600;
+    border-radius: 10px;
+    text-decoration: none;
+    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 4px 12px rgba(20, 184, 166, 0.3);
+  }
+
+  .docs-link:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(20, 184, 166, 0.4);
+  }
+
+  /* Status indicators */
+  .status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--accent-teal);
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
   }
 </style>
 </head>
-<body class="h-screen w-screen flex">
+<body>
 
-<!-- SIDEBAR -->
-<aside class="glass-sidebar relative flex flex-col h-full overflow-hidden">
+<div class="bg-pattern"></div>
 
-  <!-- LOGO -->
-  <div class="h-16 flex items-center px-5 font-bold text-xl border-b border-white/5">AW</div>
-
-  <!-- TOP NAV -->
-  <nav class="flex flex-col py-6 space-y-2 flex-shrink-0">
-    <button class="flex items-center w-full px-5 py-3 hover:text-white text-zinc-500"
-            onclick="location.reload()">
-      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
-      </svg>
-      <span class="sidebar-label">Editor</span>
-    </button>
-
-    <button class="flex items-center w-full px-5 py-3 hover:text-white text-zinc-500"
-            onclick="window.open('robot-map.html','Map','width=1200,height=800')">
-      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
-      </svg>
-      <span class="sidebar-label">Popout Map</span>
-    </button>
-
-    <button onclick="openThemeModal()"
-            class="flex items-center w-full px-5 py-3 hover:text-white text-zinc-500">
-      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-7.364l-.707.707M6.343 17.657l-.707.707m12.728 0l-.707-.707M6.343 6.343l-.707-.707"/>
-      </svg>
-      <span class="sidebar-label">Theme</span>
-    </button>
-
-    <button onclick="openDocsModal()"
-            class="flex items-center w-full px-5 py-3 hover:text-white text-zinc-500">
-      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path d="M4 6h16M4 12h16M4 18h16"/>
-      </svg>
-      <span class="sidebar-label">Docs</span>
-    </button>
-
-    <button class="flex items-center w-full px-5 py-3 hover:text-white text-zinc-500">
-      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <circle cx="12" cy="12" r="3"/>
-        <path d="M19.4 15a7 7 0 10-2.3 2.3l3.3 3.3 1.4-1.4-3.3-3.3z"/>
-      </svg>
-      <span class="sidebar-label">Contributors</span>
-    </button>
-
-  </nav>
-
-  <!-- USER + LOGOUT -->
-  <div class="absolute bottom-0 left-0 w-full px-5 pb-4 space-y-4">
-    <div id="user-box" class="flex items-center space-x-3 cursor-default">
-      <img id="user-pfp" class="w-10 h-10 rounded-full object-cover border border-white/10"
-           src="default_pfp.png">
-      <span id="user-name" class="sidebar-label text-sm text-zinc-400"></span>
+<div style="display: flex; height: 100vh; position: relative; z-index: 1;">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <span>AW</span>
     </div>
 
-    <button id="logoutBtn"
-            class="flex items-center w-full px-3 py-3 text-red-500 hover:text-red-400 rounded-xl bg-white/0 hover:bg-white/5 transition">
-      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
-      </svg>
-      <span class="sidebar-label ml-3">Logout</span>
-    </button>
-  </div>
+    <nav class="sidebar-nav">
+      <button class="nav-item" onclick="location.reload()">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+        </svg>
+        <span class="nav-label">Editor</span>
+      </button>
 
-</aside>
+      <button class="nav-item" onclick="window.open('robot-map.html','Map','width=1200,height=800')">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+        </svg>
+        <span class="nav-label">Popout Map</span>
+      </button>
 
-<!-- MAIN -->
-<main class="relative flex-1 flex flex-col min-w-0">
+      <button class="nav-item" onclick="openModal('theme')">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-7.364l-.707.707M6.343 17.657l-.707.707m12.728 0l-.707-.707M6.343 6.343l-.707-.707"/>
+        </svg>
+        <span class="nav-label">Theme</span>
+      </button>
 
-  <!-- TOP-RIGHT CREDIT -->
-  <div class="absolute top-4 right-4 text-sm text-zinc-400 bg-white/5 px-3 py-1 rounded-xl border border-white/10 backdrop-blur-md">
-    Made by FLL team <span class="font-semibold">Allied Algorithms #58590</span>
-  </div>
+      <button class="nav-item" onclick="openModal('docs')">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+        </svg>
+        <span class="nav-label">Documentation</span>
+      </button>
 
-  <!-- TOP TABS -->
-  <header class="h-14 flex items-center px-6 gap-2 border-b border-white/5">
-    <div id="tab-main" class="pill-tab active" onclick="switchTab('main')">main.aw</div>
-    <div id="tab-gen" class="pill-tab" onclick="switchTab('gen')">generated.py</div>
-  </header>
+      <button class="nav-item">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
+        </svg>
+        <span class="nav-label">Contributors</span>
+      </button>
+    </nav>
 
-  <!-- EDITOR -->
-  <div class="flex-1 relative"><div id="editor-container"></div></div>
+    <div class="sidebar-footer">
+      <div class="user-profile">
+        <img id="userAvatar" class="user-avatar" src="https://api.dicebear.com/6.x/thumbs/svg?seed=user" alt="User">
+        <span id="userName" class="user-name">Loading...</span>
+      </div>
+      <button id="logoutBtn" class="logout-btn">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 18px; height: 18px;">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+        </svg>
+        <span class="nav-label">Logout</span>
+      </button>
+    </div>
+  </aside>
 
-  <!-- TERMINAL + MAP -->
-  <div class="h-[40%] flex border-t border-white/5 bg-zinc-950/50">
-    <div class="w-[35%] p-4 font-mono text-xs flex flex-col">
-      <div id="term-out" class="flex-1 overflow-y-auto space-y-1 text-zinc-500"></div>
-      <div class="flex items-center gap-2 mt-2 pt-2 border-t border-white/5">
-        <span class="text-teal-500">></span>
-        <input id="term-in" type="text" class="bg-transparent outline-none text-zinc-200 w-full"
-               placeholder="Command...">
+  <!-- Main Content -->
+  <main class="main-content">
+    <div class="header-badge">
+      Made by FLL team <span>Allied Algorithms #58590</span>
+    </div>
+
+    <div class="tab-bar">
+      <div id="tabMain" class="tab active" onclick="switchTab('main')">main.aw</div>
+      <div id="tabGen" class="tab" onclick="switchTab('gen')">generated.py</div>
+    </div>
+
+    <div class="editor-wrapper">
+      <div id="editor-container"></div>
+    </div>
+
+    <div class="bottom-panel">
+      <div class="terminal">
+        <div id="terminalOutput" class="terminal-output"></div>
+        <div class="terminal-input-wrapper">
+          <span class="terminal-prompt">❯</span>
+          <input id="terminalInput" class="terminal-input" type="text" placeholder="Type a command..." autocomplete="off">
+        </div>
+      </div>
+
+      <div class="map-panel">
+        <iframe id="mapFrame" class="map-frame" src="robot-map.html"></iframe>
       </div>
     </div>
-    <div class="w-[65%] border-l border-white/5 p-2 bg-black">
-      <iframe id="map-frame" src="robot-map.html"
-              class="w-full h-full rounded-xl border border-white/5"></iframe>
-    </div>
-  </div>
-</main>
+  </main>
+</div>
 
-<!-- THEME MODAL -->
-<div id="themeModal" class="fixed inset-0 modal-backdrop hidden items-center justify-center z-50">
-  <div class="bg-white/90 dark:bg-zinc-900/90 border border-white/10 rounded-2xl p-6 w-72">
-      <h2 class="text-xl font-semibold mb-4 text-zinc-900 dark:text-white">Theme</h2>
-      <label class="flex items-center cursor-pointer justify-between">
-        <span class="text-sm text-zinc-700 dark:text-zinc-300">Light</span>
-        <input type="checkbox" id="theme-toggle" class="sr-only" onchange="toggleTheme()">
-        <div class="w-14 h-7 bg-zinc-700 dark:bg-zinc-200 rounded-full shadow-inner relative">
-          <div id="toggle-ball" class="absolute left-1 top-1 w-5 h-5 bg-white rounded-full transition"></div>
-        </div>
-        <span class="text-sm text-zinc-700 dark:text-zinc-300 ml-2">Dark</span>
-      </label>
+<!-- Theme Modal -->
+<div id="themeModal" class="modal-overlay" onclick="closeModalOnBackdrop(event, 'theme')">
+  <div class="modal" onclick="event.stopPropagation()">
+    <h2 class="modal-title">Appearance</h2>
+    <div class="theme-toggle-wrapper">
+      <span class="theme-label">Light Mode</span>
+      <div id="themeToggle" class="toggle-switch" onclick="toggleTheme()">
+        <div class="toggle-ball"></div>
+      </div>
+      <span class="theme-label">Dark Mode</span>
+    </div>
   </div>
 </div>
 
-<!-- DOCS MODAL -->
-<div id="docsModal" class="fixed inset-0 modal-backdrop hidden items-center justify-center z-50">
-  <div class="bg-white/90 dark:bg-zinc-900/90 border border-white/10 rounded-2xl p-6 w-72 text-center">
-    <h2 class="text-xl font-semibold mb-4 text-zinc-900 dark:text-white">Documentation</h2>
-    <a href="https://yourdocslink.com" target="_blank"
-       class="block px-4 py-2 rounded-lg bg-teal-500 text-white font-medium hover:bg-teal-600 transition">
-       Go to Documentation →
+<!-- Docs Modal -->
+<div id="docsModal" class="modal-overlay" onclick="closeModalOnBackdrop(event, 'docs')">
+  <div class="modal" onclick="event.stopPropagation()" style="text-align: center;">
+    <h2 class="modal-title">Documentation</h2>
+    <p style="color: var(--text-secondary); margin-bottom: 24px; font-size: 14px;">
+      Access comprehensive guides and API references
+    </p>
+    <a href="https://yourdocslink.com" target="_blank" class="docs-link">
+      Open Documentation →
     </a>
   </div>
 </div>
@@ -196,63 +625,108 @@ const S_KEY = "sb_publishable_rcXEO06dge8l_iJI_AUbSA_vD321UNP";
 const supabaseClient = supabase.createClient(S_URL, S_KEY);
 
 const bc = new BroadcastChannel('allied_sync');
-let editor, motorL="C", motorR="D", currentFile="main", autoCode=false, saveTimer;
+let editor, motorL = "C", motorR = "D", currentFile = "main", autoCode = false, saveTimer;
 const files = { main: "speed(5)\ndrive(100)", gen: "" };
 
-// Terminal log function
-function log(t,c="text-zinc-500"){ const d=document.createElement('div'); d.className=c; d.innerText=`> ${t}`; const o=document.getElementById('term-out'); o.appendChild(d); o.scrollTop=o.scrollHeight; }
+function log(text, className = "terminal-line") {
+  const line = document.createElement('div');
+  line.className = className;
+  line.textContent = `❯ ${text}`;
+  const output = document.getElementById('terminalOutput');
+  output.appendChild(line);
+  output.scrollTop = output.scrollHeight;
+}
 
-// Monaco editor
 require.config({ paths: { 'vs': 'https://cdn.jsdelivr.net/npm/monaco-editor@0.41.0/min/vs' }});
 require(['vs/editor/editor.main'], () => {
   editor = monaco.editor.create(document.getElementById('editor-container'), {
     value: files.main,
     language: "python",
     theme: "vs-dark",
-    automaticLayout:true,
-    minimap:{enabled:false}
+    automaticLayout: true,
+    minimap: { enabled: false },
+    fontSize: 14,
+    lineHeight: 24,
+    fontFamily: "'Monaco', 'Menlo', monospace",
+    scrollBeyondLastLine: false,
+    padding: { top: 16, bottom: 16 }
   });
-  editor.onDidChangeModelContent(()=>{ if(currentFile==='main'){clearTimeout(saveTimer); saveTimer=setTimeout(save,2000);} });
+  
+  editor.onDidChangeModelContent(() => {
+    if (currentFile === 'main') {
+      clearTimeout(saveTimer);
+      saveTimer = setTimeout(saveCode, 2000);
+    }
+  });
 });
 
-// Save to Supabase
-async function save(){
-  const { data:{user} } = await supabaseClient.auth.getUser();
-  if(!user) return;
-  await supabaseClient.from('user_scripts').upsert({id:user.id, aw_content:editor.getValue(), updated_at:new Date()});
+async function saveCode() {
+  const { data: { user } } = await supabaseClient.auth.getUser();
+  if (!user) return;
+  
+  await supabaseClient.from('user_scripts').upsert({
+    id: user.id,
+    aw_content: editor.getValue(),
+    updated_at: new Date()
+  });
+  
+  log('Code autosaved', 'terminal-line success');
 }
 
-// Terminal input
-document.getElementById('term-in').addEventListener('keydown',(e)=>{
-  if(e.key==='Enter'){
-    const val=e.target.value.trim(); e.target.value="";
-    if(val.toLowerCase()==='record'){ autoCode=!autoCode; log(`Recording: ${autoCode?'ON':'OFF'}`,autoCode?'text-teal-400':'text-red-400'); return;}
-    if(val.includes(',')){
-      if(/[A-F],[A-F]/.test(val.toUpperCase())){
-        const p=val.toUpperCase().split(',');
-        motorL=p[0]; motorR=p[1]; log(`Motors: ${motorL}, ${motorR}`, "text-teal-500");
-      } else { const c=val.split(','); bc.postMessage({type:'SET_POS',x:parseInt(c[0]),y:parseInt(c[1])}); }
+document.getElementById('terminalInput').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') {
+    const val = e.target.value.trim();
+    e.target.value = "";
+    
+    if (!val) return;
+    
+    log(val, 'terminal-line');
+    
+    if (val.toLowerCase() === 'record') {
+      autoCode = !autoCode;
+      log(`Recording mode: ${autoCode ? 'ENABLED' : 'DISABLED'}`, autoCode ? 'terminal-line success' : 'terminal-line error');
+      return;
+    }
+    
+    if (val.includes(',')) {
+      if (/[A-F],[A-F]/.test(val.toUpperCase())) {
+        const parts = val.toUpperCase().split(',');
+        motorL = parts[0];
+        motorR = parts[1];
+        log(`Motors configured: ${motorL}, ${motorR}`, 'terminal-line success');
+      } else {
+        const coords = val.split(',');
+        bc.postMessage({ type: 'SET_POS', x: parseInt(coords[0]), y: parseInt(coords[1]) });
+        log(`Position set: (${coords[0]}, ${coords[1]})`, 'terminal-line success');
+      }
     }
   }
 });
 
-// BroadcastChannel
-bc.onmessage=(e)=>{
-  if(e.data.type==='RECORD_MOVE' && autoCode){
-    const turn=`turn(${Math.round(e.data.angle)})`, drive=`drive(${Math.round(e.data.dist)})`;
+bc.onmessage = (e) => {
+  if (e.data.type === 'RECORD_MOVE' && autoCode) {
+    const turn = `turn(${Math.round(e.data.angle)})`;
+    const drive = `drive(${Math.round(e.data.dist)})`;
     editor.setValue(`${editor.getValue()}\n${turn}\n${drive}`);
+    log(`Recorded: ${turn}, ${drive}`, 'terminal-line success');
   }
-  if(e.data.type==='REQUEST_RUN') bc.postMessage({ type:'RUN_CODE', command: editor.getValue() });
+  
+  if (e.data.type === 'REQUEST_RUN') {
+    bc.postMessage({ type: 'RUN_CODE', command: editor.getValue() });
+  }
 };
 
-// Tab switching
-function switchTab(t){
-  if(t===currentFile) return;
-  if(currentFile==='main') files.main=editor.getValue();
-  if(t==='gen'){
-    const body=files.main.split('\n').map(l=>(l.trim() && !l.trim().startsWith('#'))?`    await ${l}`:`    ${l}`).join('\n');
-    files.gen=
-`import runloop,math,motor_pair,motor,time
+function switchTab(tab) {
+  if (tab === currentFile) return;
+  
+  if (currentFile === 'main') files.main = editor.getValue();
+  
+  if (tab === 'gen') {
+    const body = files.main.split('\n')
+      .map(l => (l.trim() && !l.trim().startsWith('#')) ? `    await ${l}` : `    ${l}`)
+      .join('\n');
+      
+    files.gen = `import runloop,math,motor_pair,motor,time
 from hub import port
 r = 22
 total=100
@@ -286,62 +760,75 @@ async def main():
     motor_pair.pair(motor_pair.PAIR_1, port.${motorL}, port.${motorR})
 ${body}
 runloop.run(main())`;
-    editor.setValue(files.gen); editor.updateOptions({readOnly:true});
-  } else { editor.setValue(files.main); editor.updateOptions({readOnly:false}); }
-  currentFile=t;
-  document.getElementById('tab-main').className=`pill-tab ${t==='main'?'active':''}`;
-  document.getElementById('tab-gen').className=`pill-tab ${t==='gen'?'active':''}`;
-}
-
-// Init
-async function init(){
-  const { data:{user} } = await supabaseClient.auth.getUser();
-  if(!user){ window.location.href="login.html"; return; }
-
-  const {data}=await supabaseClient.from('user_scripts').select('aw_content').eq('id',user.id).single();
-  if(data){ files.main=data.aw_content; editor.setValue(data.aw_content); }
-
-  const pfp = user.user_metadata?.avatar_url || "https://api.dicebear.com/6.x/thumbs/svg?seed="+user.email;
-  document.getElementById("user-pfp").src = pfp;
-  document.getElementById("user-name").innerText = user.email.split("@")[0];
-
-  log(`Welcome ${user.email.split('@')[0]}. Type 'record' to start path recording.`, "text-teal-400");
-}
-document.getElementById('logoutBtn').onclick=async()=>{await supabaseClient.auth.signOut(); window.location.href="login.html";}
-init();
-
-// Theme modal
-const themeModal=document.getElementById("themeModal");
-function openThemeModal(){ themeModal.classList.remove("hidden"); }
-
-// Docs modal
-const docsModal=document.getElementById("docsModal");
-function openDocsModal(){ docsModal.classList.remove("hidden"); }
-
-// Close modals when clicking outside
-window.addEventListener("click",(e)=>{
-  if(e.target===themeModal) themeModal.classList.add("hidden");
-  if(e.target===docsModal) docsModal.classList.add("hidden");
-});
-
-// Theme toggle
-let darkMode=true;
-function toggleTheme(){
-  darkMode=document.getElementById("theme-toggle").checked;
-  if(darkMode){
-    document.body.style.backgroundColor="var(--bg-dark)";
-    document.body.style.color="var(--text-dark)";
-    document.querySelector('.glass-sidebar').style.background="rgba(15,15,15,0.8)";
-    monaco.editor.setTheme("vs-dark");
-    document.getElementById("toggle-ball").style.transform="translateX(28px)";
+    
+    editor.setValue(files.gen);
+    editor.updateOptions({ readOnly: true });
   } else {
-    document.body.style.backgroundColor="var(--bg-light)";
-    document.body.style.color="var(--text-light)";
-    document.querySelector('.glass-sidebar').style.background="rgba(255,255,255,0.8)";
-    monaco.editor.setTheme("vs");
-    document.getElementById("toggle-ball").style.transform="translateX(0)";
+    editor.setValue(files.main);
+    editor.updateOptions({ readOnly: false });
+  }
+  
+  currentFile = tab;
+  document.getElementById('tabMain').className = `tab ${tab === 'main' ? 'active' : ''}`;
+  document.getElementById('tabGen').className = `tab ${tab === 'gen' ? 'active' : ''}`;
+}
+
+async function init() {
+  const { data: { user } } = await supabaseClient.auth.getUser();
+  if (!user) {
+    window.location.href = "login.html";
+    return;
+  }
+
+  const { data } = await supabaseClient.from('user_scripts').select('aw_content').eq('id', user.id).single();
+  if (data && data.aw_content) {
+    files.main = data.aw_content;
+    editor.setValue(data.aw_content);
+  }
+
+  const pfp = user.user_metadata?.avatar_url || `https://api.dicebear.com/6.x/thumbs/svg?seed=${user.email}`;
+  document.getElementById("userAvatar").src = pfp;
+  document.getElementById("userName").textContent = user.email.split("@")[0];
+
+  log(`Welcome, ${user.email.split('@')[0]}!`, 'terminal-line success');
+  log('Type "record" to enable path recording', 'terminal-line');
+}
+
+document.getElementById('logoutBtn').onclick = async () => {
+  await supabaseClient.auth.signOut();
+  window.location.href = "login.html";
+};
+
+function openModal(type) {
+  const modal = document.getElementById(type + 'Modal');
+  modal.classList.add('show');
+}
+
+function closeModalOnBackdrop(event, type) {
+  if (event.target.classList.contains('modal-overlay')) {
+    document.getElementById(type + 'Modal').classList.remove('show');
   }
 }
-</script>
-</body>
-</html>
+
+let darkMode = true;
+function toggleTheme() {
+  darkMode = !darkMode;
+  const toggle = document.getElementById('themeToggle');
+  toggle.classList.toggle('active');
+  
+  if (darkMode) {
+    monaco.editor.setTheme('vs-dark');
+    log('Theme: Dark mode enabled', 'terminal-line success');
+  } else {
+    monaco.editor.setTheme('vs');
+    log('Theme: Light mode enabled', 'terminal-line success');
+  }
+}
+
+window.addEventListener('click', (e) => {
+  if (e.target.id === 'themeModal' || e.target.id === 'docsModal') {
+    e.target.classList.remove('show');
+  }
+});
+
+init();
