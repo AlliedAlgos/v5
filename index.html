@@ -63,8 +63,8 @@
 
     <script>
         $(function () {
-            $("#navbar").load("../layout/navbar.html");
-            $("#footer").load("../layout/footer.html");
+            $("#navbar").load("./layout/navbar.html");
+            $("#footer").load("./layout/footer.html");
             $(window).on('mousemove', (e) => {
                 document.documentElement.style.setProperty('--x', e.clientX + 'px');
                 document.documentElement.style.setProperty('--y', e.clientY + 'px');
@@ -89,7 +89,7 @@
             </p>
         </header>
 
-        <section class="grid grid-cols-2 lg:grid-cols-4 gap-px bg-white/10 border border-white/10 rounded-[3rem] overflow-hidden mb-24 shadow-2xl backdrop-blur-md">
+        <section class="grid grid-cols-2 lg:grid-cols-3 gap-px bg-white/10 border border-white/10 rounded-[3rem] overflow-hidden mb-24 shadow-2xl backdrop-blur-md">
             <div class="bg-black/60 p-12 text-center hover:bg-indigo-500/5 transition-colors group">
                 <p id="live-designs" class="text-5xl font-black italic text-white group-hover:text-indigo-400 animate-pulse-slow">-</p>
                 <p class="text-[10px] font-bold uppercase tracking-[0.4em] text-zinc-600 mt-3">Robot-Designs</p>
@@ -97,10 +97,6 @@
             <div class="bg-black/60 p-12 text-center hover:bg-indigo-500/5 transition-colors group border-l border-white/10">
                 <p id="live-outreach" class="text-5xl font-black italic text-white group-hover:text-indigo-400 animate-pulse-slow">-</p>
                 <p class="text-[10px] font-bold uppercase tracking-[0.4em] text-zinc-600 mt-3">Impact</p>
-            </div>
-            <div class="bg-black/60 p-12 text-center hover:bg-indigo-500/5 transition-colors group border-l border-white/10">
-                <p id="live-sponsors" class="text-5xl font-black italic text-white group-hover:text-indigo-400 animate-pulse-slow">-</p>
-                <p class="text-[10px] font-bold uppercase tracking-[0.4em] text-zinc-600 mt-3">Partners</p>
             </div>
             <div class="bg-black/60 p-12 text-center hover:bg-indigo-500/5 transition-colors group border-l border-white/10">
                 <p id="live-seasons" class="text-5xl font-black italic text-white group-hover:text-indigo-400 animate-pulse-slow">-</p>
@@ -156,14 +152,13 @@
         async function updateStats() {
             try {
                 const { count: designs } = await sb.from('robot_designs').select('*', { count: 'exact', head: true });
-                const { count: sponsors } = await sb.from('sponsors').select('*', { count: 'exact', head: true });
+               
                 const { count: seasons } = await sb.from('seasons').select('*', { count: 'exact', head: true });
                 const { data: outreach } = await sb.from('outreach').select('count');
                 
                 const totalO = outreach?.reduce((acc, curr) => acc + (Number(curr.count) || 0), 0) || 0;
 
                 $('#live-designs').text(designs || 0);
-                $('#live-sponsors').text(sponsors || 0);
                 $('#live-seasons').text(seasons || 0);
                 $('#live-outreach').text(totalO.toLocaleString() + "+");
             } catch (e) { console.log("System Sync paused."); }
