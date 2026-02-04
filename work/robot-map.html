@@ -30,8 +30,8 @@
 
     #robot { 
       position: absolute; 
-      /* Using percentage-based size for scaling */
-      width: 4%; 
+      /* Size is set in JS relative to mat dimensions */
+      width: 6%; 
       aspect-ratio: 1/1;
       background: #fff; 
       border: 2px solid #000; 
@@ -92,7 +92,7 @@
 </head>
 <body>
   <div class="hud">
-    <div>POS: <span id="vX">0</span>, <span id="vY">0</span></div>
+    <div>POS (in): <span id="vX">0</span>, <span id="vY">0</span></div>
     <div>HEAD: <span id="vH">0</span>° (0° is UP)</div>
   </div>
   
@@ -112,6 +112,10 @@
     <button id="runBtn" class="btn-action bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg active:scale-95">
       <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg> RUN MISSION
     </button>
+    <button id="resetBtn" class="btn-action bg-zinc-800 hover:bg-zinc-700 text-white shadow-lg active:scale-95">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v6h6M20 20v-6h-6M5 9a7 7 0 0112-3M19 15a7 7 0 01-12 3"/></svg>
+      RESET
+    </button>
   </div>
 
   <script>
@@ -119,23 +123,40 @@
     const mat = document.getElementById('mat');
     const bc = new BroadcastChannel('allied_sync');
     
-    // State using percentages for responsive scaling
-    let posX = 10; // % from left
-    let posY = 80; // % from top
-    let heading = 0; // 0 is UP
+    const MAT_WIDTH_IN = 96;
+    const MAT_HEIGHT_IN = 48;
+    const ROBOT_SIZE_IN = 6;
+    const startPos = { x: MAT_WIDTH_IN * 0.1, y: MAT_HEIGHT_IN * 0.8, h: 0 };
+
+    // State in inches for real mat scaling
+    let posX = startPos.x;
+    let posY = startPos.y;
+    let heading = startPos.h; // 0 is UP
     let savedPoints = [];
 
-    // Mapping clicks to percentage based positions
+    const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
+    const clampToMat = () => {
+      const halfRobot = ROBOT_SIZE_IN / 2;
+      posX = clamp(posX, halfRobot, MAT_WIDTH_IN - halfRobot);
+      posY = clamp(posY, halfRobot, MAT_HEIGHT_IN - halfRobot);
+    };
+
+    const positionToPercent = () => ({
+      x: (posX / MAT_WIDTH_IN) * 100,
+      y: (posY / MAT_HEIGHT_IN) * 100
+    });
+
+    // Mapping clicks to inch-based positions
     mat.addEventListener('mousedown', (e) => {
       const rect = mat.getBoundingClientRect();
-      const clickX = ((e.clientX - rect.left) / rect.width) * 100;
-      const clickY = ((e.clientY - rect.top) / rect.height) * 100;
+      const clickX = ((e.clientX - rect.left) / rect.width) * MAT_WIDTH_IN;
+      const clickY = ((e.clientY - rect.top) / rect.height) * MAT_HEIGHT_IN;
 
       // Calculate distance and angle for the editor
       // Note: In screen coords, dy is inverted. 
       const dx = clickX - posX;
       const dy = clickY - posY; 
-      const dist = Math.sqrt(dx*dx + dy*dy) * 10; // Arbitrary scale factor for "units"
+      const dist = Math.sqrt(dx * dx + dy * dy);
       
       // Calculate angle where 0 is UP (-90 in standard Math.atan2)
       // Math.atan2(y, x) -> screen y is positive downwards
@@ -149,6 +170,7 @@
       posX = clickX;
       posY = clickY;
       heading = targetAngleDeg;
+      clampToMat();
       
       updateUI();
       bc.postMessage({ type: 'RECORD_MOVE', dist, angle: relTurn });
@@ -171,12 +193,25 @@
     };
 
     document.getElementById('runBtn').onclick = () => bc.postMessage({ type: 'REQUEST_RUN' });
+    document.getElementById('resetBtn').onclick = () => {
+      posX = startPos.x;
+      posY = startPos.y;
+      heading = startPos.h;
+      updateUI();
+    };
 
     bc.onmessage = async (e) => {
       if(e.data.type === 'SET_POS') { 
         posX = e.data.x; 
         posY = e.data.y; 
+        clampToMat();
         updateUI(); 
+      }
+      if(e.data.type === 'RESET_POS') {
+        posX = startPos.x;
+        posY = startPos.y;
+        heading = startPos.h;
+        updateUI();
       }
       if(e.data.type === 'RUN_CODE') {
         const lines = e.data.command.split('\n');
@@ -184,7 +219,7 @@
           l = l.trim();
           if(l.startsWith('drive(')) {
             const d = parseInt(l.match(/\d+/)?.[0] || 0);
-            await move(d / 10); // Scale down units to match % logic
+            await move(d);
           } else if(l.startsWith('turn(')) {
             const a = parseInt(l.match(/-?\d+/)?.[0] || 0);
             await rotate(a);
@@ -199,6 +234,7 @@
         const rad = (heading - 90) * (Math.PI/180);
         posX += Math.cos(rad) * d;
         posY += Math.sin(rad) * d;
+        clampToMat();
         updateUI();
         setTimeout(res, 600);
       });
@@ -213,17 +249,17 @@
     }
 
     function updateUI() {
-      // Keep within bounds
-      posX = Math.max(0, Math.min(100, posX));
-      posY = Math.max(0, Math.min(100, posY));
-
+      clampToMat();
+      const percent = positionToPercent();
+      const robotWidth = (ROBOT_SIZE_IN / MAT_WIDTH_IN) * 100;
+      robot.style.width = `${robotWidth}%`;
       // Set position via percentage for perfect scaling
-      robot.style.left = `calc(${posX}% - 2%)`; // 2% offset to center 4% width robot
-      robot.style.top = `calc(${posY}% - 2%)`;
-      robot.style.transform = `rotate(${heading}deg)`;
+      robot.style.left = `${percent.x}%`;
+      robot.style.top = `${percent.y}%`;
+      robot.style.transform = `translate(-50%, -50%) rotate(${heading}deg)`;
       
-      document.getElementById('vX').innerText = Math.round(posX);
-      document.getElementById('vY').innerText = Math.round(posY);
+      document.getElementById('vX').innerText = posX.toFixed(1);
+      document.getElementById('vY').innerText = posY.toFixed(1);
       document.getElementById('vH').innerText = Math.round(heading);
     }
 

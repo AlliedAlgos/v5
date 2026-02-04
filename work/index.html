@@ -5,8 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AlliedWork – Mission Control</title>
 <script src="https://cdn.tailwindcss.com"></script>
-<script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.41.0/min/vs/loader.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/lib/codemirror.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/theme/dracula.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/theme/eclipse.css">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/lib/codemirror.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/mode/python/python.js"></script>
 <script>
   tailwind.config = {
     theme: {
@@ -19,6 +23,12 @@
     }
   }
 </script>
+<style>
+  .CodeMirror {
+    height: 100%;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  }
+</style>
 </head>
 <body class="h-screen w-screen flex bg-[#0a0a0a] text-neutral-200 overflow-hidden font-sans">
 
@@ -173,29 +183,27 @@ function log(text, className = "text-neutral-500") {
   output.scrollTop = output.scrollHeight;
 }
 
-// Monaco Editor setup
-require.config({ paths: { 'vs': 'https://cdn.jsdelivr.net/npm/monaco-editor@0.41.0/min/vs' }});
-require(['vs/editor/editor.main'], () => {
-  editor = monaco.editor.create(document.getElementById('editor-container'), {
-    value: files.main,
-    language: "python",
-    theme: "vs-dark",
-    automaticLayout: true,
-    minimap: { enabled: false },
-    fontSize: 13,
-    lineHeight: 20,
-    padding: { top: 16, bottom: 16 },
-    scrollBeyondLastLine: false,
-    renderLineHighlight: 'none',
-    overviewRulerBorder: false
-  });
-  
-  editor.onDidChangeModelContent(() => {
-    if (currentFile === 'main') {
-      clearTimeout(saveTimer);
-      saveTimer = setTimeout(save, 2000);
-    }
-  });
+// CodeMirror setup
+editor = CodeMirror(document.getElementById('editor-container'), {
+  value: files.main,
+  mode: "python",
+  theme: "dracula",
+  lineNumbers: true,
+  tabSize: 2,
+  indentUnit: 2,
+  smartIndent: true,
+  lineWrapping: false
+});
+
+const editorContainer = document.getElementById('editor-container');
+const editorResizeObserver = new ResizeObserver(() => editor.refresh());
+editorResizeObserver.observe(editorContainer);
+
+editor.on('change', () => {
+  if (currentFile === 'main') {
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(save, 2000);
+  }
 });
 
 // Save to Supabase
@@ -220,6 +228,22 @@ document.getElementById('term-in').addEventListener('keydown', (e) => {
       log(`Recording: ${autoCode ? 'ON' : 'OFF'}`, autoCode ? 'text-teal-400' : 'text-red-400');
       return;
     }
+
+    if (val.toLowerCase() === 'help') {
+      log("Commands: record | clear | reset | L,R (motors) | x,y (inches)", "text-teal-400");
+      return;
+    }
+
+    if (val.toLowerCase() === 'clear') {
+      document.getElementById('term-out').innerHTML = "";
+      return;
+    }
+
+    if (val.toLowerCase() === 'reset') {
+      bc.postMessage({ type: 'RESET_POS' });
+      log("Resetting robot position.", "text-teal-400");
+      return;
+    }
     
     if (val.includes(',')) {
       if (/[A-F],[A-F]/.test(val.toUpperCase())) {
@@ -229,11 +253,17 @@ document.getElementById('term-in').addEventListener('keydown', (e) => {
         log(`Motors set: ${motorL}, ${motorR}`, "text-teal-400");
       } else {
         const coords = val.split(',');
-        bc.postMessage({
-          type: 'SET_POS',
-          x: parseInt(coords[0]),
-          y: parseInt(coords[1])
-        });
+        const x = parseFloat(coords[0]);
+        const y = parseFloat(coords[1]);
+        if (Number.isFinite(x) && Number.isFinite(y)) {
+          bc.postMessage({
+            type: 'SET_POS',
+            x,
+            y
+          });
+        } else {
+          log("Invalid coordinates. Use x,y in inches.", "text-red-400");
+        }
       }
     }
   }
@@ -299,10 +329,10 @@ ${body}
 runloop.run(main())`;
     
     editor.setValue(files.gen);
-    editor.updateOptions({ readOnly: true });
+    editor.setOption('readOnly', true);
   } else {
     editor.setValue(files.main);
-    editor.updateOptions({ readOnly: false });
+    editor.setOption('readOnly', false);
   }
   
   currentFile = tab;
@@ -382,13 +412,13 @@ function toggleTheme() {
     ball.classList.add('translate-x-0');
     toggle.classList.remove('bg-teal-500');
     toggle.classList.add('bg-neutral-600');
-    monaco.editor.setTheme("vs");
+    editor.setOption('theme', 'eclipse');
   } else {
     ball.classList.remove('translate-x-0');
     ball.classList.add('translate-x-6');
     toggle.classList.remove('bg-neutral-600');
     toggle.classList.add('bg-teal-500');
-    monaco.editor.setTheme("vs-dark");
+    editor.setOption('theme', 'dracula');
   }
 }
 </script>

@@ -64,12 +64,14 @@
 
     <script>
         $(function () {
-            // Ensure these paths are correct relative to your deployed site
+            const root = document.documentElement;
+
             $("#navbar").load("../layout/navbar.html");
             $("#footer").load("../layout/footer.html");
-            $(window).on('mousemove', (e) => {
-                document.documentElement.style.setProperty('--x', e.clientX + 'px');
-                document.documentElement.style.setProperty('--y', e.clientY + 'px');
+
+            $(window).on('mousemove', (event) => {
+                root.style.setProperty('--x', `${event.clientX}px`);
+                root.style.setProperty('--y', `${event.clientY}px`);
             });
         });
     </script>
@@ -152,22 +154,38 @@
         const SUPABASE_KEY = "sb_publishable_h4nlL7bfvrg-amPOoqyhTw_CJjsVfJc";
 
         const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        const STAT_SELECTORS = {
+            designs: '#live-designs',
+            seasons: '#live-seasons',
+            outreach: '#live-outreach'
+        };
 
-        async function updateStats() {
+        const fetchTableCount = async (table) => {
+            const { count } = await sb.from(table).select('*', { count: 'exact', head: true });
+            return count || 0;
+        };
+
+        const fetchOutreachTotal = async () => {
+            const { data } = await sb.from('outreach').select('count');
+            return data?.reduce((acc, curr) => acc + (Number(curr.count) || 0), 0) || 0;
+        };
+
+        const updateStats = async () => {
             try {
-                const { count: designs } = await sb.from('robot_designs').select('*', { count: 'exact', head: true });
-                const { count: seasons } = await sb.from('seasons').select('*', { count: 'exact', head: true });
-                const { data: outreach } = await sb.from('outreach').select('count');
+                const [designs, seasons, outreach] = await Promise.all([
+                    fetchTableCount('robot_designs'),
+                    fetchTableCount('seasons'),
+                    fetchOutreachTotal()
+                ]);
 
-                const totalO = outreach?.reduce((acc, curr) => acc + (Number(curr.count) || 0), 0) || 0;
-
-                $('#live-designs').text(designs || 0);
-                $('#live-seasons').text(seasons || 0);
-                $('#live-outreach').text(totalO.toLocaleString() + "+");
-            } catch (e) {
+                $(STAT_SELECTORS.designs).text(designs);
+                $(STAT_SELECTORS.seasons).text(seasons);
+                $(STAT_SELECTORS.outreach).text(`${outreach.toLocaleString()}+`);
+            } catch (error) {
                 console.log("System Sync paused.");
             }
-        }
+        };
+
         updateStats();
     </script>
 </body>
