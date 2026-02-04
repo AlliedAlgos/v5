@@ -1,5 +1,5 @@
 <!-- Worlds Banner -->
-<div id="worldsBanner" class="fixed top-0 left-0 right-0 z-[10000] bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white py-3 px-6 transition-all duration-500">
+<div id="worldsBanner" class="fixed top-0 left-0 right-0 z-[10000] bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white py-3 px-6 transition-transform duration-500">
     <div class="max-w-7xl mx-auto flex items-center justify-center gap-3 text-center">
         <div class="flex items-center gap-2">
             <i class="fa-solid fa-trophy text-yellow-300 animate-pulse"></i>
@@ -44,9 +44,7 @@
                         Projects <i class="fa-solid fa-chevron-down text-[10px] transition-transform"></i>
                     </button>
 
-                    <div id="projectDropdown" class="fixed left-1/2 -translate-x-1/2 w-[85%] opacity-0 invisible translate-y-3 transition-all duration-300 ease-out z-[10000]"
-                         style="top: calc(48px + 30px);">
-
+                    <div id="projectDropdown" class="fixed left-1/2 -translate-x-1/2 w-[85%] opacity-0 invisible translate-y-3 transition-all duration-300 ease-out z-[10000]" style="top: calc(48px + 30px);">
                         <div class="pt-4">
                             <div class="bg-zinc-900/95 backdrop-blur-3xl rounded-[2.5rem] shadow-2xl border border-white/10 p-8">
                                 <div class="grid grid-cols-3 gap-8 text-left">
@@ -96,7 +94,6 @@
 <!-- SCRIPT -->
 <script>
 (function () {
-
     const worldsBanner = document.getElementById('worldsBanner');
     const navWrapper = document.getElementById('navWrapper');
     const navContainer = document.getElementById('navContainer');
@@ -109,47 +106,35 @@
     const projectDropdown = document.getElementById('projectDropdown');
     const projectsWrapper = document.getElementById('projectsWrapper');
 
-    /* -----------------------------
-       MOBILE MENU TOGGLE
-    ------------------------------*/
+    /* MOBILE MENU TOGGLE */
     mobileMenuBtn.addEventListener('click', () => {
         const isOpen = mobileMenu.classList.contains('opacity-100');
+        mobileMenu.classList.toggle('opacity-100', !isOpen);
+        mobileMenu.classList.toggle('pointer-events-auto', !isOpen);
 
-        if (isOpen) {
-            mobileMenu.classList.remove('opacity-100', 'pointer-events-auto');
-            hamburgerIcon.children[0].classList.remove('rotate-45', 'translate-y-[9px]');
-            hamburgerIcon.children[1].classList.remove('opacity-0');
-            hamburgerIcon.children[2].classList.remove('-rotate-45', '-translate-y-[9px]');
-        } else {
-            mobileMenu.classList.add('opacity-100', 'pointer-events-auto');
-            hamburgerIcon.children[0].classList.add('rotate-45', 'translate-y-[9px]');
-            hamburgerIcon.children[1].classList.add('opacity-0');
-            hamburgerIcon.children[2].classList.add('-rotate-45', '-translate-y-[9px]');
-        }
+        hamburgerIcon.children[0].classList.toggle('rotate-45', !isOpen);
+        hamburgerIcon.children[0].classList.toggle('translate-y-[9px]', !isOpen);
+        hamburgerIcon.children[1].classList.toggle('opacity-0', !isOpen);
+        hamburgerIcon.children[2].classList.toggle('-rotate-45', !isOpen);
+        hamburgerIcon.children[2].classList.toggle('-translate-y-[9px]', !isOpen);
     });
 
-    /* -----------------------------
-       PROJECTS DROPDOWN (Hover with 2s delay)
-    ------------------------------*/
+    /* PROJECTS DROPDOWN (Hover with 0.1s delay) */
     let closeTimeout;
-
     projectsWrapper.addEventListener('mouseenter', () => {
         clearTimeout(closeTimeout);
         projectDropdown.classList.add("opacity-100", "visible");
         projectDropdown.classList.remove("opacity-0", "invisible");
     });
-
     projectsWrapper.addEventListener('mouseleave', () => {
         clearTimeout(closeTimeout);
         closeTimeout = setTimeout(() => {
             projectDropdown.classList.remove("opacity-100", "visible");
             projectDropdown.classList.add("opacity-0", "invisible");
-        }, 100); // 2 seconds
+        }, 100);
     });
 
-    /* -----------------------------
-       SCROLL BEHAVIOR (Pill Nav)
-    ------------------------------*/
+    /* SCROLL BEHAVIOR */
     function handleScroll() {
         const bannerHeight = worldsBanner.offsetHeight;
         const scrollThreshold = 60;
@@ -158,32 +143,28 @@
             if (window.scrollY > scrollThreshold) {
                 worldsBanner.style.transform = "translateY(-100%)";
                 navWrapper.style.top = "20px";
-                navContainer.className =
-                    "mx-auto px-10 bg-zinc-900/80 backdrop-blur-2xl border border-white/20 shadow-2xl rounded-full transition-all duration-500";
+                navContainer.classList.add('mx-auto', 'px-10', 'bg-zinc-900/80', 'backdrop-blur-2xl', 'border', 'border-white/20', 'shadow-2xl', 'rounded-full');
                 navContainer.style.width = "max-content";
 
                 brandName.style.width = "0px";
                 brandName.style.opacity = "0";
                 brandName.style.overflow = "hidden";
-
             } else {
                 worldsBanner.style.transform = "translateY(0)";
                 navWrapper.style.top = bannerHeight + "px";
-                navContainer.className =
-                    "w-full mx-auto px-6 bg-zinc-900/60 backdrop-blur-2xl border-b border-white/5 shadow-lg transition-all duration-500";
+                navContainer.className = "w-full mx-auto px-6 bg-zinc-900/60 backdrop-blur-2xl border-b border-white/5 shadow-lg transition-all duration-500";
                 navContainer.style.width = "100%";
 
                 brandName.style.width = "auto";
                 brandName.style.opacity = "1";
             }
 
-            projectDropdown.style.top = `calc(${navWrapper.offsetTop}px + 64px)`;
+            projectDropdown.style.top = `calc(${navWrapper.offsetTop + navWrapper.offsetHeight}px)`;
         }
     }
 
     window.addEventListener("scroll", handleScroll);
     window.addEventListener("resize", handleScroll);
     handleScroll();
-
 })();
 </script>
