@@ -322,11 +322,6 @@ runloop.run(main())`;
 
 // Initialize
 async function init() {
-  const { data: { user } } = await supabaseClient.auth.getUser();
-  if (!user) {
-    window.location.href = "login.html";
-    return;
-  }
 
   const { data } = await supabaseClient.from('user_scripts')
     .select('aw_content')
